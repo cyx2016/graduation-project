@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文档管理</title>
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <script src="../static/js/jquery-1.8.3.min.js"></script>
+    <script src="../static/js/page/bootstrap-paginator.js"></script>
+    <script>
+        $(document).ready(function() {
+            //查询参数获取
+            var title = $("#title").val();
+            var name = $("#name").val();
+            var kind = $("#kind").val();
+
+            //菜单管理
+            qrymenu();
+            //角色查询
+            $.ajax({
+                url: '/docKind/show',
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var sel= document.getElementById("kind");
+                    //清除所有选项
+                    document.getElementById("kind").length=0;
+                    var html="<option selected value=\"\">所有</option>";
+                    for(var i=0;i<data.length;i++){
+                        html+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+                    }
+                    $("#kind").html(html);
+                },
+                error:function(){
+                    alert("查询失败");
+                }
+
+            });
+            //自定义函数
+
+            //初始查询
+            qry(1);
+        });
+        function  qry(newPage) {
+            $.ajax({
+                url: '/doc/pageshow',
+                type: "POST",
+                data: '{"pageNo": "' + newPage + '"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    //先清空
+                    $("#doctable tbody").html("");
+                    var html;
+                    var result = data.results;
+                    var hidden="";
+                    var filename="";
+                    var username = ""+[[${session.userroleid}]];
+                    var strs= new Array(); //定义一数组
+                    for (var i = 0; i < result.length; i++) {
+                        var idtemp = result[i].id;
+                        var str = "/doc/intoDocMod?id=" + idtemp;
+                        strs=result[i].level.split(",");
+                        if(strs.indexOf(username)!=-1){
+                        //var str1 = "/user/intoUserDetail?id=" + idtemp;
+                        filename=result[i].url.substring(11,result[i].url.indexOf(".")-14)+result[i].url.slice(result[i].url.indexOf("."),-1);
+                        if(result[i].name!=$("#value1").val()){
+                            hidden="hidden";
+                        }
+                        html += "<tr>" + "<td hidden>" + result[i].id + "</td>" +
+                            "<td>" + result[i].name + "</td>" +
+                            "<td>" + result[i].kindName + "</td>" +
+                            "<td>" + result[i].authorName + "</td>" +
+                            "<td>" +
+                            "<a  href=" + str + " class=\"btn btn-primary btn-sm\""+hidden+">" + "修改" + "</a>  " +
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+hidden+">" + "删除" + "</button>  " +
+                            "<a  href=\"../document/" + result[i].url + "\" class=\"btn btn-primary btn-sm\" download=\""+filename+"\">" + "下载" + "</a>  " + "</td>"
+                            + "</tr>";//
+                        hidden="";
+                        }
+                    }
+                    //填充表
+                    $("#doctable tbody").html(html);
+                    var options = {
+                        currentPage: data.pageNo,
+                        totalPages: data.totalPage,
+                        numberOfPages: 5,
+                        onPageClicked:function(event, originalEvent, type,page){
+                            qry(page);
+                        },
+                        /*onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }*/
+                    }
+                    $('#example').bootstrapPaginator(options);
+                },
+                error:function(){
+                    var options = {
+                        currentPage: 1,
+                        totalPages: 1,
+                        numberOfPages: 5,
+                        onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }
+                    }
+                    $('#example').bootstrapPaginator(options);
+                    alert("查询失败");
+                }
+            });
+        }
+        function qryByParams(page,title,name,kind ) {
+            $.ajax({
+                url: '/doc/showByParams',
+                data:'{"name": "' +title+ '","authorName":"'+name+'","kind":"'+kind+'","pageNo": "'+page+'"}',
+                /*async: true,*/
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    //先清空
+                    $("#doctable tbody").html("");;
+
+                    var html;
+                    var hidden="";
+                    var result = data.results;
+                    var filename="";
+                    var strs= new Array(); //定义一数组
+                    var username = ""+[[${session.userroleid}]];
+                    //strs=str.split(","); //字符分割
+                    for (var i = 0; i < result.length; i++) {
+                        var idtemp = result[i].id;
+                        var str = "/doc/intoDocMod?id=" + idtemp;
+                        strs=result[i].level.split(",")
+                        filename=result[i].url.substring(11,result[i].url.indexOf(".")-14)+result[i].url.slice(result[i].url.indexOf("."),-1);
+                        if(result[i].name!=$("#value1").val()){
+                            hidden="hidden";
+                        }
+                        if(strs.indexOf(username)!=-1) {
+                            html += "<tr>" + "<td hidden>" + result[i].id + "</td>" +
+                                "<td>" + result[i].name + "</td>" +
+                                "<td>" + result[i].kindName + "</td>" +
+                                "<td>" + result[i].authorName + "</td>" +
+                                "<td>" +
+                                "<a  href=" + str + " class=\"btn btn-primary btn-sm\"" + hidden + ">" + "修改" + "</a>  " +
+                                "<button  href=\"#\" class=\"btn btn-primary btn-sm\" " + hidden + ">" + "删除" + "</button>  " +
+                                "<a  href=\"../document/" + result[i].url + "\" class=\"btn btn-primary btn-sm\" download=\"" + filename + "\">" + "下载" + "</a>  " + "</td>"
+                                + "</tr>";
+                            hidden = "";
+                        }
+                    }
+                    //填充表
+                    $("#doctable tbody").html(html);
+                    var options = {
+                        currentPage: data.pageNo,
+                        totalPages: data.totalPage,
+                        numberOfPages: 5,
+                        onPageClicked:function(event, originalEvent, type,page){
+                            qryByParams(page,role,id,name,sex);
+                        }
+                    }
+                    $('#example').bootstrapPaginator(options);
+                },
+                error:function(){
+                    var options = {
+                        currentPage: 1,
+                        totalPages: 1,
+                        numberOfPages: 5,
+                        onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }
+                    }
+                    $('#example').bootstrapPaginator(options);
+                    alert("查询失败");
+                }
+            });
+        }
+        //查询操作
+        $(function () {
+            //用户条件查询
+            $("#research").click(function () {
+                var title = $("#title").val();
+                var name = $("#name").val();
+                var kind = $("#kind").val();
+                qryByParams(1,title,name,kind);
+            });
+        });
+        //删除
+        $(function () {
+            //删除操作
+            $("tbody").delegate("button", "click",function () {
+                //alert("值:"+this.innerHTML);
+                if(this.innerHTML=="删除"){
+                    var node=this.parentElement.parentElement;
+                    var id=this.parentElement.parentElement.children[0].innerHTML;
+                    $.ajax({
+                        url: '/doc/del',
+                        data:'{"id": "' +id+ '"}',
+                        /*async: true,*/
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function (data) {
+                            //console.log(isNaN(data));
+                            //alert("删除成功");
+                            if(data=="1"){
+                                node.remove();
+                                alert("删除成功");
+                            }
+                            else
+                                alert("删除失败,原因数据库操作失败");
+                        },
+                        error:function(){
+                            alert("删除失败,原因数据上传失败");
+                        }
+                    });
+                };
+                /* if(this.innerHTML=="修改"){
+                     //var node=this.parentElement.parentElement;
+                     var id=this.parentElement.parentElement.children[0].innerHTML;
+                     //window.href.location="/user/intoUserMod"
+                     $.post("/user/intoUserMod",{"foo":id})
+                   /!* $.ajax({
+                         url: '/user/intoUserMod',
+                         data:'{"id": "' +id+ '"}',
+                         async: true,
+                         type: "POST",
+                         contentType: "application/json",
+                         dataType: 'json',
+                         success: function (data) {
+                         },
+                         error:function(){
+                             alert("进入修改页面失败");
+                         }
+                     });*!/
+                 };*/
+            });
+        });
+        //查询权限
+        function qrymenu(){
+            var id="[[${session.userroleid}]]";
+            $.ajax({
+                url: '/menu/showRole',
+                type: "POST",
+                data:'{"roleid": "' +id+'"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var result=data;
+                    var html="";
+                    var active="";
+                    //清空菜单
+                    $("#menu").html();
+
+                    //项目菜单为默认的
+                    html="<li class=\"nav-item\">\n" +
+                        "                            <a class=\"nav-link \"  href=\"/userManage\" th:href=\"@{/userManage}\">\n" +
+                        "                                <span data-feather=\"layers\"></span>\n" +
+                        "                                项目管理\n" +
+                        "                            </a>\n" +
+                        "                        </li>";
+                    for(var i=0;i<result.length;i++){
+                        if(result[i].name=="文档管理"){
+                            active="active";
+                        }
+                        html+="<li class=\"nav-item\"><a class=\"nav-link "+active+"\"href=\""+result[i].url+"\" th:href=\"@{/userLinks}\">" +
+                            "<span data-feather=\"shopping-cart\"></span>\n" +
+                            result[i].name + " </a>\n" + "</li>\n";
+                        active="";
+                    }
+                    $("#menu").html(html);
+                },error:function(){
+
+                }
+            });
+        }
+
+    </script>
+
+</head>
+<body>
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                    <!--<li class="nav-item">
+                        <a class="nav-link" href="/userLinks" th:href="@{/userLinks}">
+                            <span data-feather="shopping-cart"></span>
+                            友情链接管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/userNewsShow" th:href="@{/userNewsShow}">
+                            <span data-feather="users"></span>
+                            新闻内容管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/userDocShow" th:href="@{/userDocShow}">
+                            <span data-feather="bar-chart-2"></span>
+                            文档管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"  href="/userManage" th:href="@{/userManage}">
+                            <span data-feather="layers"></span>
+                            项目管理
+                        </a>
+                    </li>-->
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <!--主体-->
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <h2>条件查询</h2>
+        <form class="form-inline col-md-12">
+            <label for="title">标题</label>
+            <input type="text" class="form-control col-md-3 mx-sm-3" id="title" placeholder="请输入标题">
+            <label for="name">作者</label>
+            <input type="text" class="form-control col-md-3 mx-sm-3" id="name" placeholder="请输入作者">
+            <label for="kind">种类</label>
+            <select id="kind" class="form-control col-md-3 mx-sm-3">
+            </select>
+            <button id="research" type="button" class="btn btn-primary pull-right">
+                <span class="glyphicon glyphicon-search"></span>查询
+            </button>
+        </form>
+        <br/>
+        <div class="row">
+            <div class="col-md-9 ml-sm-auto col-lg-10">
+                <h2>文档管理</h2>
+            </div>
+            <div class="col-md-3 ml-sm-auto col-lg-2">
+                <button type="button-right" class="btn btn-secondary"  onclick="window.location.href='/userDocAdd'">增加</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table id="doctable" class="table table-striped "><!--table-sm-->
+                <thead>
+                <tr>
+                    <th>文档名称</th>
+                    <th>文档种类</th>
+                    <th>上传者</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div id="example"></div>
+            <span style="font-family:'sans serif, tahoma, verdana, helvetica';"><span
+                    style="white-space:normal;"> </span></span>
+        </div>
+    </main>
+</div>
+</body>
+</html>

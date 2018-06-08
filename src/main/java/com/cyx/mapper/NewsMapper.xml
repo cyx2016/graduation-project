@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cyx.mapper.NewsMapper">
+  <resultMap id="BaseResultMap" type="com.cyx.pojo.News">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="kindId" jdbcType="VARCHAR" property="kindid" />
+    <result column="pic" jdbcType="VARCHAR" property="pic" />
+    <result column="desp" jdbcType="VARCHAR" property="desp" />
+    <result column="userId" jdbcType="VARCHAR" property="userid" />
+    <result column="date" jdbcType="VARCHAR" property="date" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="isShow" jdbcType="VARCHAR" property="isshow" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    news.id, kindId, pic, desp, userId, date, content, isShow, title
+  </sql>
+  <sql id="All_Column_List">
+    news.id, kindId, pic, desp, userId, date, content, isShow, title,user.name as username,newskinds.name as kindname
+  </sql>
+  <select id="getNewsListByKindId" parameterType="java.lang.String" resultType="com.cyx.pojo.News">
+    SELECT id,kindId,title,date
+    from news WHERE
+    kindId=#{kindId,jdbcType=VARCHAR}
+    ORDER BY kindId,date,id
+  </select>
+  <select id="queryList" resultType="com.cyx.pojo.News">
+    SELECT news.id, kindId, pic, desp, userId, date, content, isShow, title,user.name as username,newskinds.name as kindname
+    FROM news left outer join user on news.userId=user.id left outer JOIN newskinds on newskinds.id = news.kindId
+    ORDER BY date,id,userId,kindId
+  </select>
+  <select id="getNewsListByParams" parameterType="com.cyx.pojo.News" resultType="com.cyx.pojo.News">
+    select news.id, kindId, pic, desp, userId, date, content, isShow, title,user.name as username,newskinds.name as kindname
+    from news left outer join user on news.userId=user.id left outer JOIN newskinds on newskinds.id = news.kindId
+    WHERE 1=1
+    <if test="id != null and id!=''" >
+      and news.id like CONCAT('%',#{id,jdbcType=VARCHAR},'%')
+    </if>
+    <!--<if test="name != null and name!=''" >
+      and name = #{name,jdbcType=VARCHAR}
+    </if>-->
+    <if test="isshow != null and isshow!=''" >
+      and isShow = #{isshow,jdbcType=VARCHAR}
+    </if>
+    <if test="date != null and date !=''" >
+      and date = #{date,jdbcType=VARCHAR}
+    </if>
+    <if test="username != null and username!=''">
+      and user.name like CONCAT('%',#{username,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="userid != null and userid!=''">
+      and news.userId = #{userid,jdbcType=VARCHAR}
+    </if>
+    ORDER BY newskinds.id,date,id,userId
+  </select>
+  <select id="queryListbyparams"  parameterType="java.util.Map" resultType="com.cyx.pojo.News">
+     SELECT <include refid="All_Column_List" />
+    FROM news left outer join user on news.userId=user.id left outer JOIN newskinds on newskinds.id = news.kindId
+    <where>1=1
+    <if test="title!=null and title!=''">
+      and title like CONCAT('%',#{title,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="isshow!=null and isshow!=''">
+      and isShow=#{isshow,jdbcType=VARCHAR}
+    </if>
+    <if test="kind!=null and kind!=''">
+      and kindId=#{kind,jdbcType=VARCHAR}
+    </if>
+    <if test="username!=null and username!=''">
+      and (user.name like CONCAT('%',#{username,jdbcType=VARCHAR},'%') or news.userId=#{username,jdbcType=VARCHAR})
+    </if>
+    <if test="date1!=null and date1!=''">
+      and date &gt;=#{date1,jdbcType=VARCHAR}
+    </if>
+    <if test="date2!=null and date2!=''">
+      and date &lt;= #{date2,jdbcType=VARCHAR}
+    </if>
+   </where>
+    ORDER BY date,id,userId,kindId
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="All_Column_List" />
+    from news left outer join user on news.userId=user.id left outer JOIN newskinds on newskinds.id = news.kindId
+    where news.id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from news
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.cyx.pojo.News">
+    insert into news (id, kindId, pic, 
+      desp, userId, date, 
+      content, isShow, title
+      )
+    values (#{id,jdbcType=VARCHAR}, #{kindid,jdbcType=VARCHAR}, #{pic,jdbcType=VARCHAR}, 
+      #{desp,jdbcType=VARCHAR}, #{userid,jdbcType=VARCHAR}, #{date,jdbcType=VARCHAR}, 
+      #{content,jdbcType=VARCHAR}, #{isshow,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.cyx.pojo.News">
+    insert into news
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="kindid != null">
+        kindId,
+      </if>
+      <if test="pic != null">
+        pic,
+      </if>
+      <if test="desp != null">
+        desp,
+      </if>
+      <if test="userid != null">
+        userId,
+      </if>
+      <if test="date != null">
+        date,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="isshow != null">
+        isShow,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="kindid != null">
+        #{kindid,jdbcType=VARCHAR},
+      </if>
+      <if test="pic != null">
+        #{pic,jdbcType=VARCHAR},
+      </if>
+      <if test="desp != null">
+        #{desp,jdbcType=VARCHAR},
+      </if>
+      <if test="userid != null">
+        #{userid,jdbcType=VARCHAR},
+      </if>
+      <if test="date != null">
+        #{date,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="isshow != null">
+        #{isshow,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cyx.pojo.News">
+    update news
+    <set>
+      <if test="kindid != null">
+        kindId = #{kindid,jdbcType=VARCHAR},
+      </if>
+      <if test="pic != null">
+        pic = #{pic,jdbcType=VARCHAR},
+      </if>
+      <if test="desp != null">
+        desp = #{desp,jdbcType=VARCHAR},
+      </if>
+      <if test="userid != null">
+        userId = #{userid,jdbcType=VARCHAR},
+      </if>
+      <if test="date != null">
+        date = #{date,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="isshow != null">
+        isShow = #{isshow,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cyx.pojo.News">
+    update news
+    set kindId = #{kindid,jdbcType=VARCHAR},
+      pic = #{pic,jdbcType=VARCHAR},
+      desp = #{desp,jdbcType=VARCHAR},
+      userId = #{userid,jdbcType=VARCHAR},
+      date = #{date,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      isShow = #{isshow,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

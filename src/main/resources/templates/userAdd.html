@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户增加</title>
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <!--日期控件css-->
+    <link rel="stylesheet" href="../static/css/datetimepicker.css">
+    <!--jquery-->
+    <script type="text/javascript" src="../static/js/jquery-1.8.3.min.js" charset="UTF-8"></script>
+    <script src="../static/js/jquery-1.8.3.min.js"></script>
+    <script src="../static/js/router.js"></script>
+    <script src="../static/js/bootstrap-datetimepicker.js"></script>
+    <!--日期控件js-->
+    <script src="../static/js/bootstrap-datetimepicker.js"></script>
+    <script src="../static/js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            $.ajax({
+                url: '/role/show',
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    //清除所有选项
+                    document.getElementById("role").length = 0;
+                    var html;
+                    for (var i = 0; i < data.length; i++) {
+                        html += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+                    }
+                    $("#role").html(html);
+                },
+                error: function () {
+                    alert("查询失败");
+                }
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <!--导航栏固定-->
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+            </li>
+        </ul>
+    </nav>
+    <!--侧栏固定-->
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                        <li class="nav-item" data-id="user">
+                            <a class="nav-link active" href="/adminHomePage" th:href="@{/adminHomePage}">
+                                <span data-feather="home"></span>
+                                用户信息管理 <span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" data-id="role">
+                            <a class="nav-link" href="/roleManage" th:href="@{/roleManage}">
+                                <span data-feather="file"></span>
+                                用户权限管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/links" th:href="@{/links}">
+                                <span data-feather="shopping-cart"></span>
+                                友情链接管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/newsKind" th:href="@{/newsKind}">
+                                <span data-feather="users"></span>
+                                新闻种类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/newsShow" th:href="@{/newsShow}">
+                                <span data-feather="users"></span>
+                                新闻内容管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/docKind" th:href="@{/docKind}">
+                                <span data-feather="bar-chart-2"></span>
+                                文档种类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/docShow" th:href="@{/docShow}">
+                                <span data-feather="bar-chart-2"></span>
+                                文档管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  href="/adminProject" th:href="@{/adminProject}">
+                                <span data-feather="layers"></span>
+                                项目管理
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!--主体-->
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <form class="col-md-10 offset-md-1"action="user/add" method="post">
+            <input type="text" class="form-control" name="type" value="add" hidden>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="username">用户名</label>
+                    <input type="text" class="form-control" id="username" placeholder="name" name="name" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="pwd">密码</label>
+                    <input type="text" class="form-control" id="pwd" placeholder="Password" name="password"  required 	minlength="6">
+                </div>
+            </div>
+            <!--<div class="form-group">
+                <label for="address">地址</label>
+                <input type="text" class="form-control" id="address" placeholder="1234 Main St">
+            </div>-->
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="sex">性别</label>
+                    <select name="sex" id="sex" class="form-control">
+                        <option selected value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="dtp_input2">出生日期</label>
+                    <div class="input-group date form_date" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                        <input class="form-control" size="16" type="text" value=""  name="birth"  readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span></button>
+                            <button class="btn btn-primary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="dtp_input2" value="" /><br/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="develope">研究方向</label>
+                    <input type="text" class="form-control" id="develope" name="develope" placeholder="人工智能">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="role">角色</label>
+                    <select id="role" name="role" class="form-control">
+                        <option selected value="1">管理员</option>
+                        <option value="2">用户</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="Introduction">个人简介</label>
+                    <textarea rows="5" class="form-control" name="Introduction" id="Introduction" placeholder="个人简介" wrap="hard"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="gridCheck">
+                    <label class="form-check-label" for="gridCheck">
+                        Check me out
+                    </label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">增加</button>
+        </form>
+    </main>
+    <!--日期js-->
+    <script>
+        $('.form_date').datetimepicker({
+            language:  'zh-CN',
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 2,
+            forceParse: 0
+        });
+    </script>
+</body>
+</html>

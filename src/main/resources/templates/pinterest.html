@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/css/signin.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/masonry.pkgd.min.js" ></script>
+    <style type="text/css">
+        .container-fluid {
+            padding: 20px;
+        }
+        .box {
+            margin:10px 20px 10px 20px;
+            float: left;
+            width: 220px;
+        }
+        .box img {
+            max-width: 100%
+        }
+    </style>
+    <script>
+        $(function() {
+            var $container = $('#masonry');
+            $container.imagesLoaded(function() {
+                $container.masonry({
+                    itemSelector: '.box',
+                    gutter: 20,
+                    isAnimated: true,
+                });
+            });
+        });
+    </script>
+    <title>瀑布流(pinterest)</title>
+</head>
+<body>
+
+
+<div id="masonry" class="container-fluid">
+    <div class="box"><img src="/imgs/1.jpg">123435453454</div>
+    <div class="box"><img src="/imgs/2.jpg">34444444444444444444</div>
+    <div class="box"><img src="/imgs/3.jpg">42234234</div>
+    <div class="box"><img src="/imgs/4.jpg">234</div>
+    <div class="box"><img src="/imgs/5.jpg">22222222222222</div>
+    <div class="box"><img src="/imgs/6.jpg">2321213</div>
+</div>
+<button class="btn btn-info">123</button>
+
+</body>
+</html>

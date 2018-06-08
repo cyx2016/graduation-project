@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--<html lang="en">-->
+<head>
+    <meta charset="UTF-8">
+    <title>管理员管理主页</title>
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <!--<script src="../static/js/vendor/jquery-slim.min.js"></script>-->
+    <script src="../static/js/jquery-1.8.3.min.js"></script>
+    <script src="../static/js/page/bootstrap-paginator.js"></script>
+    <!--<script src="../static/js/router.js"></script>-->
+    <script>
+        $(document).ready(function() {
+            //角色查询
+            $.ajax({
+                url: '/role/show',
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var sel= document.getElementById("kind");
+                    //清除所有选项
+                    document.getElementById("role").length=0;
+                    var html="<option selected value=\"\">所有</option>";
+                    for(var i=0;i<data.length;i++){
+                        html+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+                    }
+                    $("#role").html(html);
+                },
+                error:function(){
+                    alert("查询失败");
+                }
+
+            });
+            //自定义函数
+            qry(1);
+        });
+        function  qry(newPage) {
+            $.ajax({
+                url: '/user/pageshow',
+                type: "POST",
+                data: '{"pageNo": "' + newPage + '"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    //先清空
+                    $("#usertable tbody").html("");
+                    var html;
+                    var result = data.results;
+                    var hidden="";
+                    var develop="";
+                    var username = "[[${session.username}]]";
+                    //var currentPage = data.pageNo+1;
+                    //var totalPages =
+                    for (var i = 0; i < result.length; i++) {
+                        var idtemp = result[i].id;
+                        var str = "/user/intoUserMod?id=" + idtemp;
+                        var str1 = "/user/intoUserDetail?id=" + idtemp;
+
+                        if(result[i].role=="1"&&result[i].name!=username){
+                            hidden="hidden";
+                        }
+                        if(typeof(result[i].develope)!="undefined"){
+                            develop=result[i].develope;
+                        }
+                        html += "<tr>" + "<td>" + result[i].id + "</td>" +
+                            "<td>" + result[i].name + "</td>" +
+                            "<td>" + result[i].sex + "</td>" +
+                            "<td>" + result[i].rolename + "</td>" +
+                            "<td>" + develop+ "</td>" +
+                            "<td>" +
+                            "<a  href=" + str + " class=\"btn btn-primary btn-sm\""+hidden+">" + "修改" + "</a>  " +
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+hidden+">" + "删除" + "</button>  " +
+                            "<a  href=" + str1 + " class=\"btn btn-primary btn-sm\">" + "详细" + "</a>  " + "</td>"
+                            + "</tr>";
+                        hidden="";
+                        develop="";
+                    }
+                    //填充表
+                    $("#usertable tbody").html(html);
+                    var options = {
+                        currentPage: data.pageNo,
+                        totalPages: data.totalPage,
+                        numberOfPages: 5,
+                        onPageClicked:function(event, originalEvent, type,page){
+                            qry(page);
+                        },
+                        /*onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }*/
+                    }
+                    $('#example').bootstrapPaginator(options);
+                },
+                error:function(){
+                    var options = {
+                        currentPage: 1,
+                        totalPages: 1,
+                        numberOfPages: 5,
+                        onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }
+                    }
+                    $('#example').bootstrapPaginator(options);
+                    alert("查询失败");
+                }
+            });
+        }
+        function qryByParams(page,role,id,name,sex ) {
+           /* var role = $("#role").val();
+            var id = $("#id").val();
+            var name = $("#name").val();
+            var sex = $("#sex").val();*/
+            $.ajax({
+                url: '/user/showByParams',
+                data:'{"id": "' +id+ '","name":"'+name+'","sex":"'+sex+'","role": "'+role+'","pageNo": "'+page+'"}',
+                /*async: true,*/
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    //先清空
+                    $("#usertable tbody").html("");
+                    $("#usertable tbody").html("");
+                    var html;
+                    var hidden="";
+                    var develop="";
+                    var username = "[[${session.username}]]";
+                    var result = data.results;
+                    for (var i = 0; i < result.length; i++) {
+                        var idtemp = result[i].id;
+                        var str = "/user/intoUserMod?id=" + idtemp;
+                        var str1 = "/user/intoUserDetail?id=" + idtemp;
+                        if(result[i].role=="1"&&result[i].name!=username){
+                            hidden="hidden";
+                        }
+                        if(typeof(result[i].develope)!="undefined"){
+                            develop=result[i].develope;
+                        }
+                        html += "<tr>" + "<td>" + result[i].id + "</td>" +
+                            "<td>" + result[i].name + "</td>" +
+                            "<td>" + result[i].sex + "</td>" +
+                            "<td>" + result[i].rolename + "</td>" +
+                            "<td>" + develop + "</td>" +
+                            "<td>" +
+                            "<a  href=" + str + " class=\"btn btn-primary btn-sm\""+hidden+">" + "修改" + "</a>  " +
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+hidden+">" + "删除" + "</button>  " +
+                            "<a  href=" + str1 + " class=\"btn btn-primary btn-sm\">" + "详细" + "</a>  " + "</td>"
+                            + "</tr>";
+                        hidden="";
+                        develop="";
+                    }
+                    //填充表
+                    $("#usertable tbody").html(html);
+                    var options = {
+                        currentPage: data.pageNo,
+                        totalPages: data.totalPage,
+                        numberOfPages: 5,
+                        onPageClicked:function(event, originalEvent, type,page){
+                            qryByParams(page,role,id,name,sex);
+                        }
+                    }
+                    $('#example').bootstrapPaginator(options);
+                },
+                error:function(){
+                    var options = {
+                        currentPage: 1,
+                        totalPages: 1,
+                        numberOfPages: 5,
+                        onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }
+                    }
+                    $('#example').bootstrapPaginator(options);
+                    alert("查询失败");
+                }
+            });
+        }
+        $(function () {
+            //删除操作
+            $("tbody").delegate("button", "click",function () {
+                //alert("值:"+this.innerHTML);
+                if(this.innerHTML=="删除"){
+                    var node=this.parentElement.parentElement;
+                    var id=this.parentElement.parentElement.children[0].innerHTML;
+                    var userid="[[${session.userid}]]";
+                    $.ajax({
+                        url: '/user/del',
+                        data:'{"id": "' +id+ '"}',
+                        /*async: true,*/
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function (data) {
+                            //console.log(isNaN(data));
+                            //alert("删除成功");
+                            if(data=="1"){
+                                node.remove();
+                                alert("删除成功");
+                                if(id==userid){
+                                    window.location.href="/logout";
+                                }
+                            }
+                            else if(data=="400"){
+                                alert("警告：该用户存在负责项目在流转，请对先相应项目处理！！！");
+                            }
+                            else
+                                alert("删除失败,原因数据库操作失败");
+                        },
+                        error:function(){
+                            alert("删除失败,原因数据上传失败");
+                        }
+                    });
+                };
+               /* if(this.innerHTML=="修改"){
+                    //var node=this.parentElement.parentElement;
+                    var id=this.parentElement.parentElement.children[0].innerHTML;
+                    //window.href.location="/user/intoUserMod"
+                    $.post("/user/intoUserMod",{"foo":id})
+                  /!* $.ajax({
+                        url: '/user/intoUserMod',
+                        data:'{"id": "' +id+ '"}',
+                        async: true,
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function (data) {
+                        },
+                        error:function(){
+                            alert("进入修改页面失败");
+                        }
+                    });*!/
+                };*/
+            });
+       });
+        $(function () {
+            //用户条件查询
+            $("#research").click(function () {
+                var role = $("#role").val();
+                var id = $("#id").val();
+                var name = $("#name").val();
+                var sex = $("#sex").val();
+                qryByParams(1,role,id,name,sex);
+            });
+        });
+    </script>
+
+    <!-- <script>
+         function getParam(name) {
+             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+             var r = window.location.search.substr(1).match(reg);
+             if (r != null)
+                 return decodeURI(r[2]);   //对参数进行decodeURI解码
+             return null;
+         }
+
+
+         $(function() {
+             var val1 = getParam("username");
+             var val2 = getParam("password");
+             $('#value1').html(val1);
+             $('#value2').html(val2);
+         });
+     </script>-->
+</head>
+<body>
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1">[[${session.username}]]</a>
+
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                        <li class="nav-item" data-id="user">
+                            <a class="nav-link active" href="/adminHomePage" th:href="@{/adminHomePage}">
+                                <span data-feather="home"></span>
+                                用户信息管理 <span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" data-id="role">
+                            <a class="nav-link" href="/roleManage" th:href="@{/roleManage}">
+                                <span data-feather="file"></span>
+                                用户权限管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/links" th:href="@{/links}">
+                                <span data-feather="shopping-cart"></span>
+                               友情链接管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/newsKind" th:href="@{/newsKind}">
+                                <span data-feather="users"></span>
+                                新闻种类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/newsShow" th:href="@{/newsShow}">
+                                <span data-feather="users"></span>
+                                新闻内容管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/docKind" th:href="@{/docKind}">
+                                <span data-feather="bar-chart-2"></span>
+                                文档种类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/docShow" th:href="@{/docShow}">
+                                <span data-feather="bar-chart-2"></span>
+                                文档管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  href="/adminProject" th:href="@{/adminProject}">
+                                <span data-feather="layers"></span>
+                                项目管理
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+                <div id="content"></div>
+                <h2>条件查询</h2>
+                <form class="form-inline col-md-12">
+                        <label for="sex">性别</label>
+                        <select id="sex" class="form-control col-md-2 mx-sm-3">
+                            <option selected value=""></option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    <label for="id">编号</label>
+                    <input type="text" class="form-control col-md-2 mx-sm-3" id="id" placeholder="请输入编号">
+                    <label for="name">姓名</label>
+                    <input type="text" class="form-control col-md-2 mx-sm-3" id="name" placeholder="请输入姓名">
+                    <label for="role">角色</label>
+                    <select id="role" class="form-control col-md-2 mx-sm-3">
+                        <option selected value="0">所有</option>
+                        <option value="1">角色1</option>
+                        <option value="2">角色2</option>
+                    </select>
+                    <button id="research" type="button" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-search"></span>查询
+                    </button>
+                </form>
+                <br/>
+                <div class="row">
+                    <div class="col-md-9 ml-sm-auto col-lg-10">
+                        <h2>用户信息查询</h2>
+                    </div>
+                    <div class="col-md-3 ml-sm-auto col-lg-2">
+                        <button type="button-right" class="btn btn-secondary" href="/useeAdd" onclick="window.location.href='/userAdd'">增加</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="usertable" class="table table-striped ">
+                        <thead>
+                        <tr>
+                            <th>用户编号</th>
+                            <th>用户名称</th>
+                            <th>用户性别</th>
+                            <th>用户职位</th>
+                            <th>用户研究方向</th>
+                            <th>用户信息修改</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="user : ${userList}">
+                            <td th:text="${user.id}">无</td>
+                            <td th:text="${user.name}">无</td>
+                            <td th:text="${user.sex}">无</td>
+                            <td th:text="${user.role}">无</td>
+                            <td th:text="${user.develope}">无</td>
+                            <td>
+                                <a href="/user/intoUserMod?id="+${user.id} class="btn btn-primary btn-sm">修改</a>
+                                <button href="#" class="btn btn-primary btn-sm">删除</button>
+                                <a href="#" class="btn btn-primary btn-sm">详细</a>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+                    <div id="example"></div>
+                    <span style="font-family:'sans serif, tahoma, verdana, helvetica';"><span style="white-space:normal;"> </span></span>
+                </div>
+            </main>
+
+    </div>
+</body>
+</html>

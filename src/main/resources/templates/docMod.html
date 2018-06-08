@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文档修改</title>
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <link rel="stylesheet" href="../static/css/fileinput/fileinput.css">
+    <script src="../static/js/jquery-1.8.3.min.js"></script>
+    <script src="../static/js/page/bootstrap-paginator.js"></script>
+    <script src="../static/js/fileinput/fileinput.js"></script>
+    <script src="../static/js/fileinput/zh.js"></script>
+    <script>
+        $(document).ready(function() {
+            //文档种类查询
+            $.ajax({
+                url: '/docKind/show',
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var sel= document.getElementById("kind");
+                    //清除所有选项
+                    document.getElementById("kind").length=0;
+                    var html="";
+                    var select="";
+                    for(var i=0;i<data.length;i++){
+                        if($("#kind1").val()==data[i].id)
+                            select="selected";
+                        html+="<option value='"+data[i].id+"'"+select+">"+data[i].name+"</option>";
+                        select="";
+                    }
+                    $("#kind").html(html);
+                },
+                error:function(){
+                    alert("查询失败");
+                }
+
+            });
+            //自定义函数
+
+            //查询角色
+            qryRole()
+        });
+
+        //角色查询
+        function qryRole() {
+            $.ajax({
+                url: '/role/show',
+                type: "POST",
+                //data: '{"pageNo": "' + newPage + '"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var html="";
+                    var id=$("#id").val();
+                    //选择角色
+                    var check="";
+                    var myArray=$("#level1").val().split(",");
+                    for(var i=0;i<data.length;i++){
+                        for(var j=0 ; j< myArray.length ; j++){
+                            if(myArray[j]==data[i].id){
+                                check="checked";
+                                break;
+                            }
+                        }
+                        //if(data[i].id!=id){
+                            html+="<div class=\"input-group mb-3  col-md-3 \">"+"<div class=\"input-group-prepend\"><span class=\"input-group-text\"><input name=\"member\" type=\"checkbox\" value=\""+data[i].id+"\" "+check+">" +
+                                " </span></div><input type=\"text\" value=\""+data[i].name+"\" class=\"form-control\" readonly></div>";
+                        //}
+
+                        check="";
+                    }
+                    //清空
+                    $("#role").html();
+                    //填充内容
+                    $("#role").html(html);
+                }, error: function () {
+                    alert("用户查询失败");
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                    <li class="nav-item" data-id="user">
+                        <a class="nav-link" href="/adminHomePage" th:href="@{/adminHomePage}">
+                            <span data-feather="home"></span>
+                            用户信息管理 <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-id="role">
+                        <a class="nav-link" href="/roleManage" th:href="@{/roleManage}">
+                            <span data-feather="file"></span>
+                            用户权限管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/links" th:href="@{/links}">
+                            <span data-feather="shopping-cart"></span>
+                            友情链接管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/newsKind" th:href="@{/newsKind}">
+                            <span data-feather="users"></span>
+                            新闻种类管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/newsShow" th:href="@{/newsShow}">
+                            <span data-feather="users"></span>
+                            新闻内容管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docKind" th:href="@{/docKind}">
+                            <span data-feather="bar-chart-2"></span>
+                            文档种类管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/docShow" th:href="@{/docShow}">
+                            <span data-feather="bar-chart-2"></span>
+                            文档管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"  href="/adminProject" th:href="@{/adminProject}">
+                            <span data-feather="layers"></span>
+                            项目管理
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+        <!--主体-->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <form id="form" action="/doc/mod" method="post" enctype="multipart/form-data">
+                <input th:value="${doc.id}" id="id" name="id" hidden>
+                <div class="row form-group">
+                    <div class="col-md-6">
+                        <label for="kind" >种类</label>
+                        <select id="kind"  name="kind" class="form-control col-md-12">
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name" >文档名称</label>
+                        <input id="name" th:value="${doc.name}" name="name" class="form-control col-md-12" required>
+                        </input>
+                    </div>
+                </div>
+                <div class="row form-group col-md-6 ">
+
+                </div>
+                <div class="row form-group">
+                    <label class="col-md-4">文档上传:</label>
+                    <div class="col-sm-12">
+                        <input id="newsContent" name="file1"  type="file" data-show-caption="true">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12" id="team">
+                        <label>权限角色:</label>
+                        <div id="role" name="role" class="input-group mb-3">
+                            <div  class="input-group-prepend">
+                            <span class="input-group-text">
+                                <input type="checkbox">
+                            </span>
+                            </div>
+                            <input type="text" value="ccc" class="form-control" readonly>
+                        </div><!-- /input-group -->
+                    </div>
+                </div>
+                <button id="upload" type="submit" class="btn btn-primary">提交</button>
+            </form>
+            <input th:value="${doc.kind}" id="kind1" hidden>
+            <input th:value="${doc.level}" id="level1" hidden>
+        </main>
+
+</div>
+<script>
+    $(function () {
+        //initFileInput("image","news/multifileUpload");
+        initFileInput("newsContent","news/fileUpload");
+    })
+
+    function initFileInput(ctrlName,url) {
+        var imgArray=['jpg', 'gif', 'png'];
+        var fileArray=['txt','text','doc','docx','pdf'];
+        var array=new Array();
+        //文件上传
+        if(ctrlName=="newsContent"){
+            array=fileArray;
+        }else{
+            array=imgArray;
+        }
+        var control = $('#' + ctrlName);
+        control.fileinput({
+            language: 'zh', //设置语言
+            uploadUrl: url, //上传的地址
+            allowedFileExtensions: array,//接收的文件后缀
+            //uploadExtraData:{"id": 1, "fileName":'123.mp3'},
+            uploadAsync: false, //默认异步上传
+            showUpload: true, //是否显示上传按钮
+            showRemove : true, //显示移除按钮
+            showPreview : true, //是否显示预览
+            showCaption: false,//是否显示标题
+            browseClass: "btn btn-primary", //按钮样式
+            //dropZoneEnabled: true,//是否显示拖拽区域
+            //minImageWidth: 50, //图片的最小宽度
+            //minImageHeight: 50,//图片的最小高度
+            //maxImageWidth: 1000,//图片的最大宽度
+            //maxImageHeight: 1000,//图片的最大高度
+            maxFileSize: 0,//单位为kb，如果为0表示不限制文件大小
+            //minFileCount: 0,
+            //maxFileCount: 1, //表示允许同时上传的最大文件个数
+            enctype: 'multipart/form-data',
+            validateInitialCount:true,
+            previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+            msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+
+        }).on('filepreupload', function(event, data, previewId, index) {     //上传中
+            var form = data.form, files = data.files, extra = data.extra,
+                response = data.response, reader = data.reader;
+            console.log('文件正在上传');
+        }).on("fileuploaded", function (event, data, previewId, index) {    //一个文件上传成功
+            console.log('文件上传成功！'+data.id);
+
+        }).on('fileerror', function(event, data, msg) {  //一个文件上传失败
+            console.log('文件上传失败！'+data.id);
+
+
+        })
+    };
+</script>
+</body>
+</html>

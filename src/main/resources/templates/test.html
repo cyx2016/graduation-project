@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>个人中心</title>
+    <meta charset="utf-8">
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <!--滑动开关css-->
+    <link rel="stylesheet" href="../static/css/bootstrap-switch.css">
+
+    <script src="../static/js/bootstrap.js"></script>
+    <!--滑动开关js-->
+    <script src="../static/js/bootstrap-switch.js"></script>
+    <!--<script src="../static/js/vendor/jquery-slim.min.js"></script>-->
+    <script type="text/javascript" src="../static/js/jquery-1.8.3.min.js" charset="UTF-8"></script>
+
+    <!--<script src="../static/js/router.js"></script>-->
+</head>
+<body>
+<div class="userWrap">
+    <ul class="userMenu">
+        <li class="current" data-id="user">用户中心</li>
+        <li data-id="role">账户信息</li>
+        <li data-id="trade">交易记录</li>
+        <li data-id="info">消息中心</li>
+    </ul>
+    <div id="content">
+    </div>
+    选项框
+    <div class="bootstrap-switch bootstrap-switch-large">
+        <input type="checkbox" name="status">
+    </div>
+    <script>
+        $('[name="status"]').bootstrapSwitch({
+            /*onText:"启用222",*/
+            offText:"off",
+            onColor:"success",
+            offColor:"info",
+            size:"small",
+            onSwitchChange:function(event,state){
+                if(state==true){
+                    $(this).val("1");
+                }else{
+                    $(this).val("2");
+                }
+            }
+        })
+    </script>
+</div>
+</body>
+</html>

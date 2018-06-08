@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>权限管理</title>
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <script src="../static/js/jquery-1.10.2.min.js"></script>
+    <script src="../static/js/jquery-1.8.3.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/valide/jquery.validate.js"></script>
+    <!--<script src="../static/js/valide/bootstrapValidator.min.js"></script>-->
+    <script>
+        $(document).ready(function() {
+            //整体查询
+            qry();
+            //表单验证
+            $("#form1").validate({
+                name: {
+                    required: true
+                },
+                messages: {
+                    name: {
+                        required: "请输入角色名",
+                    }
+                }
+            });
+
+            //增加操作
+            $("#add").click(function() {
+                //alert("添加操作");
+                var flag = $("#form1").valid();
+                if(!flag){
+                    //没有通过验证
+                    return;
+                }
+                        $.ajax({
+                            url: '/role/add',
+                            data: '{"name":"' + $("#name").val() + '"}',
+                            type: "POST",
+                            contentType: "application/json",
+                            dataType: 'json',
+                            success: function (data) {
+                                qry();
+                            },
+                            error: function () {
+                                alert("添加失败");
+                            }
+                        });
+
+                });
+
+        });
+
+        //删除操作
+        $(function () {
+            $("tbody").delegate("button", "click",function () {
+                if(this.innerHTML=="删除"){
+                    var node=this.parentElement.parentElement;
+                    var id=this.parentElement.parentElement.children[0].innerHTML;
+                    $.ajax({
+                        url: '/role/del',
+                        data:'{"id": "' +id+ '"}',
+                        /*async: true,*/
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function (data) {
+                            if(data=="1"){
+                                node.remove();
+                                alert("删除成功");
+                            }
+                            else
+                                alert("删除失败,原因数据库操作失败");
+                        },
+                        error:function(){
+                            alert("删除失败,原因数据上传失败");
+                        }
+                    });
+                };
+                if(this.innerHTML=="修改"){
+                    //var node=this.parentElement.parentElement;
+                    var id=this.parentElement.parentElement.children[0].innerHTML;
+                    var name=this.parentElement.parentElement.children[1].innerHTML;
+                    var url=this.parentElement.parentElement.children[2].innerHTML;
+                    var sort=this.parentElement.parentElement.children[3].innerHTML;
+                    var node=this.parentElement.parentElement;
+                    var html=
+                        "<label for=\"id1\" hidden=\"hidden\">友情链接名称</label>"+
+                        "<input type=\"text\" id=\"id1\" hidden=\"hidden\" value='"+id+"'>"+
+                        "<label for=\"id\">友情链接名称</label>"+
+                        "<input type=\"text\" class=\"form-control col-md-6 mx-sm-5\" id=\"name1\" placeholder=\"请输入友情链接名称\" value='"+name+"'>"+
+                        "<label for=\"name\">排序号</label>"+
+                        "<input type=\"text\" class=\"form-control col-md-2 mx-sm-5\" id=\"sort1\" placeholder=\"请输入排序号\" value='"+sort+"'>"+
+                        "<br/><br/><br/>"+
+                        "<label for=\"url\">友情链接路径</label>"+
+                        "<input type=\"text\" class=\"form-control col-md-8 mx-sm-5\" id=\"url1\" placeholder=\"请输入友情链接\" value='"+url+"'>"+
+                        "<button id=\"mod\" type=\"button\" class=\"btn btn-primary\"> "+
+                        /*onclick='mod("+ $("#id1").val()+","+$("#name1").val()+","+$("#sort1").val()+","+$("#url1").val()+","+")'*/
+                        "<span class=\"glyphicon\" id=\"add\"></span>修改</button>";
+                    $("#modform").html("");
+                    $("#modform").append(html);
+                    /* $("#id1").val(id);
+                     $("#name1").val(name);
+                     $("#url1").val(url);
+                     $("#sort1").val(sort);*/
+                };
+            });
+        });
+        
+        function qry() {
+            //整体查询
+            $.ajax({
+                url: '/role/show',
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    $("#roletable tbody").html("");
+                    var html;
+                    for(var i=0;i<data.length;i++){
+                        var idtemp=data[i].id;
+                        var str ="/role/intoRoleMod?id="+idtemp;
+                        var str1 ="#"+idtemp;
+                        var del=data[i].username==null?"":"hidden";
+                        if(data[i].username==null)
+                            data[i].username="无";
+                        if(data[i].id!=1){
+                            html+= "<tr>"+"<td>"+data[i].id+"</td>"+
+                                "<td>" +data[i].name+"</td>"+
+                                "<td>"+data[i].username+"</td>"+
+                                "<td>"+
+                                "<a  href="+str+" class=\"btn btn-primary btn-sm\">"+"修改"+"</a>  "+
+                                "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+del+" >"+"删除"+"</button>  "+
+                                "<a  href="+str1+" class=\"btn btn-primary btn-sm\">"+"详细"+"</a>  "+"</td>"
+                                +"</tr>";
+                        }
+                    }
+                    $("#roletable tbody").html(html);
+                },
+                error:function(){
+                    alert("查询失败");
+                }
+            });
+        }
+    </script>
+
+
+</head>
+<body>
+    <!--导航栏固定-->
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+            </li>
+        </ul>
+    </nav>
+    <!--侧栏固定-->
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                        <li class="nav-item" data-id="user">
+                            <a class="nav-link" href="/adminHomePage" th:href="@{/adminHomePage}">
+                                <span data-feather="home"></span>
+                                用户信息管理 <span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" data-id="role">
+                            <a class="nav-link active" href="/roleManage" th:href="@{/roleManage}">
+                                <span data-feather="file"></span>
+                                用户权限管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/links" th:href="@{/links}">
+                                <span data-feather="shopping-cart"></span>
+                                友情链接管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/newsKind" th:href="@{/newsKind}">
+                                <span data-feather="users"></span>
+                                新闻种类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/newsShow" th:href="@{/newsShow}">
+                                <span data-feather="users"></span>
+                                新闻内容管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/docKind" th:href="@{/docKind}">
+                                <span data-feather="bar-chart-2"></span>
+                                文档种类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/docShow" th:href="@{/docShow}">
+                                <span data-feather="bar-chart-2"></span>
+                                文档管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  href="/adminProject" th:href="@{/adminProject}">
+                                <span data-feather="layers"></span>
+                                项目管理
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <h2>角色添加</h2>
+        <form class="form-inline col-md-12" id="form1">
+            <div class="form-inline col-md-8">
+            <label for="name">角色名称</label>
+            <input type="text" class="form-control col-md-6 mx-sm-5" id="name" name="name" placeholder="请输入角色名称" required>
+            </div>
+            <button id="add" type="button" class="btn btn-primary">
+                <span class="glyphicon" ></span>增加
+            </button>
+        </form>
+        <br/>
+        <div class="row">
+            <div class="col-md-9 ml-sm-auto col-lg-12">
+                <h2>权限管理</h2>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table id="roletable" class="table table-striped ">
+                <thead>
+                <tr>
+                    <th>角色编号</th>
+                    <th>角色名称</th>
+                    <th>相关人员</th>
+                    <th>权限修改</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>001</td>
+                    <td>管理员</td>
+                    <td>cyx</td>
+                    <td>
+                        <a href="#" class="btn btn-primary btn-sm">详细</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>002</td>
+                    <td>职工</td>
+                    <td>张三、李四、王二麻子</td>
+                    <td>
+                        <a href="#" class="btn btn-primary btn-sm">修改</a>
+                        <a href="#" class="btn btn-primary btn-sm">详细</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>003</td>
+                    <td>游客</td>
+                    <td>无</td>
+                    <td>
+                        <a href="#" class="btn btn-primary btn-sm">修改</a>
+                        <a href="#" class="btn btn-primary btn-sm">删除</a>
+                        <a href="#" class="btn btn-primary btn-sm">详细</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

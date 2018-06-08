@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新闻内容修改</title>
+    <script src="../static/js/jquery-1.8.3.min.js"></script>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <link rel="stylesheet" href="../static/css/fileinput/fileinput.css">
+
+    <!--<script src="../static/js/vendor/jquery-slim.min.js"></script>-->
+    <script src="../static/js/fileinput/fileinput.js"></script>
+    <script src="../static/js/fileinput/zh.js"></script>
+
+    <script src="../static/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            //菜单管理
+            qrymenu();
+            //新闻种类查询
+            $.ajax({
+                url: '/newsKind/show',
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var sel= document.getElementById("kind");
+                    //清除所有选项
+                    document.getElementById("kind").length=0;
+                    var html;
+                    for(var i=0;i<data.length;i++){
+                        html+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+                    }
+                    $("#kind").html(html);
+                },
+                error:function(){
+                    alert("查询失败");
+                }
+
+            });
+
+            //修改按钮
+            /*$("#upload").click(function() {
+                //alert($("#Introduction").val());
+                //alert("文件上传");
+                //新闻数据更新
+                $("#image").fileinput("upload");
+                $("#newsContent").fileinput("upload");
+                var id=$("#id").val();
+                var desp=$("#Introduction").val();
+                var kind=$("#kind option:selected").val();
+                var title=$("#title").val();
+                var isshow=$("#isShow option:selected").val();
+                console.log($("#Introduction").val());
+                var bool;
+                window.setTimeout($.ajax({
+                    url: '/news/mod',
+                    data:'{"id":"'+id+'","title":"'+title+ '","kindid":"'+kind+'", "desp": "'
+                    +desp+'","isshow":"'+isshow+'"}',
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: 'json',
+                    success:function (data) {
+                        //alert(data);
+                        if(data !=0 ){
+                            window.location.href = "/newsShow";
+                        //$("#image").fileinput("upload");
+                        //$("#newsContent").fileinput("upload");
+                        alert("新闻修改成功");
+                        //window.location.href = "/newsShow.html";
+                        }else{
+                            alert("新闻修改失败,数据库操作失败");
+                        }
+                    },
+                    error:function (){
+                        bool=0;
+                        alert("新闻发布失败");
+                    }
+
+                }),3000);
+
+                //alert("新闻发布成功yy");
+                //$("#image").fileinput("upload");
+            });*/
+
+        });
+        //查询权限
+        function qrymenu(){
+            var id="[[${session.userroleid}]]";
+            $.ajax({
+                url: '/menu/showRole',
+                type: "POST",
+                data:'{"roleid": "' +id+'"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var result=data;
+                    var html="";
+                    var active="";
+                    //清空菜单
+                    $("#menu").html();
+
+                    //项目菜单为默认的
+                    html="<li class=\"nav-item\">\n" +
+                        "                            <a class=\"nav-link \"  href=\"/userManage\" th:href=\"@{/userManage}\">\n" +
+                        "                                <span data-feather=\"layers\"></span>\n" +
+                        "                                项目管理\n" +
+                        "                            </a>\n" +
+                        "                        </li>";
+                    for(var i=0;i<result.length;i++){
+                        if(result[i].name=="新闻管理"){
+                            active="active";
+                        }
+                        html+="<li class=\"nav-item\"><a class=\"nav-link "+active+"\"href=\""+result[i].url+"\" th:href=\"@{/userLinks}\">" +
+                            "<span data-feather=\"shopping-cart\"></span>\n" +
+                            result[i].name + " </a>\n" + "</li>\n";
+                        active="";
+                    }
+                    $("#menu").html(html);
+                },error:function(){
+
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <!--导航栏固定-->
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+            </li>
+        </ul>
+    </nav>
+    <!--侧栏固定-->
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                       <!-- <li class="nav-item">
+                            <a class="nav-link" href="/userLinks" th:href="@{/userLinks}">
+                                <span data-feather="shopping-cart"></span>
+                                友情链接管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/userNewsShow" th:href="@{/userNewsShow}">
+                                <span data-feather="users"></span>
+                                新闻内容管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/userDocShow" th:href="@{/userDocShow}">
+                                <span data-feather="bar-chart-2"></span>
+                                文档管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  href="/userManage" th:href="@{/userManage}">
+                                <span data-feather="layers"></span>
+                                项目管理
+                            </a>
+                        </li>-->
+                    </ul>
+                </div>
+            </nav>
+        </div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <form id="form" action="/news/mod1" method="post" enctype="multipart/form-data"><!--upload/insert-->
+            <input id="id" name="id" th:value="${news.id}"  hidden>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="title">新闻标题</label>
+                    <input type="text" th:value="${news.title}" class="form-control" id="title" placeholder="请输入标题" name="title" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="kind">新闻种类</label>
+                    <select id="kind" class="form-control" name="kind">
+                        <!--<option selected>人物介绍</option>
+                        <option>科研喜讯</option>-->
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="isShow">是否主页展示</label>
+                    <select id="isShow" class="form-control" name="isShow">
+                        <option value="1" th:selected="${news.isshow}=='1'?'true':'false'">是</option>
+                        <option value="2" th:selected="${news.isshow}=='2'?'true':'false'">否</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <label class="col-md-4"for="image">图片上传:</label>
+                <div class="col-sm-12">
+                    <input id="image" name="file" multiple type="file" data-show-caption="true">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="Introduction">新闻简介</label>
+                    <textarea rows="5"  th:text="${news.desp}" class="form-control" name="desp" id="Introduction" placeholder="新闻简介"></textarea>
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-4">新闻内容文件上传:</label>
+                <div class="col-sm-12">
+                    <input id="newsContent" name="file1"  type="file" data-show-caption="true">
+                </div>
+            </div>
+            <button id="upload" type="submit" class="btn btn-primary">提交</button>
+        </form>
+    </main>
+    </div>
+    <!--主体-->
+
+    <!--文件上传js-->
+    <script>
+    $(function () {
+        initFileInput("image","multifileUpload");
+        initFileInput("newsContent","fileUpload");
+    })
+
+    function initFileInput(ctrlName,url) {
+        var imgArray=['jpg', 'gif', 'png'];
+        var fileArray=['txt','text'];
+        var array=new Array();
+        //文件上传
+        if(ctrlName=="newsContent"){
+            array=fileArray;
+        }else{
+            array=imgArray;
+        }
+        var control = $('#' + ctrlName);
+        control.fileinput({
+            language: 'zh', //设置语言
+            uploadUrl: url, //上传的地址
+            allowedFileExtensions: array,//接收的文件后缀
+            //uploadExtraData:{"id": 1, "fileName":'123.mp3'},
+            uploadAsync: true, //默认异步上传
+            showUpload: false, //是否显示上传按钮
+            showRemove : true, //显示移除按钮
+            showPreview : true, //是否显示预览
+            showCaption: false,//是否显示标题
+            browseClass: "btn btn-primary", //按钮样式
+            //dropZoneEnabled: true,//是否显示拖拽区域
+            //minImageWidth: 50, //图片的最小宽度
+            //minImageHeight: 50,//图片的最小高度
+            //maxImageWidth: 1000,//图片的最大宽度
+            //maxImageHeight: 1000,//图片的最大高度
+            //maxFileSize: 0,//单位为kb，如果为0表示不限制文件大小
+            //minFileCount: 0,
+            maxFileCount: 3, //表示允许同时上传的最大文件个数
+            enctype: 'multipart/form-data',
+            validateInitialCount:true,
+            previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+            msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+
+        }).on('filepreupload', function(event, data, previewId, index) {     //上传中
+            var form = data.form, files = data.files, extra = data.extra,
+                response = data.response, reader = data.reader;
+            console.log('文件正在上传');
+        }).on("fileuploaded", function (event, data, previewId, index) {    //一个文件上传成功
+            console.log('文件上传成功！'+data.id);
+
+        }).on('fileerror', function(event, data, msg) {  //一个文件上传失败
+            console.log('文件上传失败！'+data.id);
+
+
+        })
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>项目详细</title>
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <!--日期控件css-->
+    <link rel="stylesheet" href="../static/css/datetimepicker.css">
+
+    <script src="../static/js/jquery-1.8.3.min.js"></script>
+    <script src="../static/js/page/bootstrap-paginator.js"></script>
+    <!--日期控件js-->
+    <script src="../static/js/bootstrap-datetimepicker.js"></script>
+    <script src="../static/js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        $(document).ready(function() {
+            qryUser();
+        });
+        //查询用户
+        function qryUser() {
+            $.ajax({
+                url: '/user/showteam',
+                type: "POST",
+                //data: '{"pageNo": "' + newPage + '"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var html="";
+                    var id=$("#id").val();
+                    var check="";
+                    var myArray=$("#member1").val();
+                    for(var i=0;i<data.length;i++){
+                        if(myArray.indexOf(data[i].id)!=-1){
+                            check="checked";
+                        }
+                        if(data[i].id!=id){
+                            html+="<div class=\"input-group mb-3  col-md-3 \">"+"<div class=\"input-group-prepend\"><span class=\"input-group-text\"><input name=\"member\" type=\"checkbox\" value=\""+data[i].id+"\""+check+">" +
+                                " </span></div><input type=\"text\" value=\""+data[i].name+"\" class=\"form-control\" readonly></div>";
+                        }
+                        //复选框未选中
+                        check="";
+                    }
+                    //清空
+                    $("#teamshow").html();
+                    //填充内容
+                    $("#teamshow").html(html);
+                }, error: function () {
+                    alert("用户查询失败");
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+    <input id="id" hidden th:value="${session.userid}" >
+
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+        </li>
+    </ul>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                    <li class="nav-item" data-id="user">
+                        <a class="nav-link" href="/adminHomePage" th:href="@{/adminHomePage}">
+                            <span data-feather="home"></span>
+                            用户信息管理 <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-id="role">
+                        <a class="nav-link" href="/roleManage" th:href="@{/roleManage}">
+                            <span data-feather="file"></span>
+                            用户权限管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/links" th:href="@{/links}">
+                            <span data-feather="shopping-cart"></span>
+                            友情链接管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/newsKind" th:href="@{/newsKind}">
+                            <span data-feather="users"></span>
+                            新闻种类管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/newsShow" th:href="@{/newsShow}">
+                            <span data-feather="users"></span>
+                            新闻内容管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docKind" th:href="@{/docKind}">
+                            <span data-feather="bar-chart-2"></span>
+                            文档种类管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docShow" th:href="@{/docShow}">
+                            <span data-feather="bar-chart-2"></span>
+                            文档管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active"  href="/docShow" th:href="@{/docShow}">
+                            <span data-feather="layers"></span>
+                            项目管理
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <form class="col-md-10 offset-md-1" th:action="@{/project/mod}" method="post">
+                <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="name">项目名称</label>
+                    <input type="text" th:value="${pro.name}" class="form-control" id="name" placeholder="项目名称" name="name">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="dtp_input2">项目开始日期</label>
+                    <div class="input-group date form_date" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                        <input class="form-control" size="16" type="text" th:value="${pro.datetime}"  name="birth"  readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span></button>
+                            <button class="btn btn-primary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></button>
+                        </div>
+                    </div>
+                    <input type="hidden"  class="form-control" id="dtp_input2" name="datetime" value="" /><br/>
+                </div>
+                </div>
+                <div class="form-row">
+                    <!--<div class="form-group col-md-6">
+                        <label for="name">项目负责人</label>
+                        <input type="text" th:value="${pro.leader}" class="form-control" id="leader" placeholder="项目名称" name="name" readonly>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="dtp_input2">项目状态</label>
+                        <input type="text" th:value="${pro.status}" class="form-control" id="status" name="datetime" readonly >
+                    </div>-->
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="duration">所需时间</label>
+                        <div class="input-group mb-3">
+                            <input th:value="${pro.duration}" type="text" class="form-control" id="duration" placeholder="所需时间" name="duration" >
+                            <div class="input-group-append">
+                                <span  class="input-group-text">天</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="fund">所需资金</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">&yen;</span>
+                            </div>
+                            <input th:value="${pro.fund}" id="fund" name="fund" type="text" class="form-control" >
+                            <div class="input-group-append">
+                                <span class="input-group-text">.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <p>团队成员</p><br/>
+                        <div class="form-row">
+                            <div class="form-group col-md-12" id="team">
+                                <div id="teamshow" class="input-group mb-3">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                <input th:value="${pro.id}" id="proid" name="id" hidden><div class="form-row">
+                <button id="upload" type="submit" class="btn btn-primary">修改</button>
+            </form>
+            <input th:value="${pro.member}" id="member1" hidden>
+        </main>
+
+</div>
+<!--日期js-->
+<script>
+    $('.form_date').datetimepicker({
+        language:  'zh-CN',
+        weekStart: 1,
+        todayBtn:  1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+</script>
+</body>
+</html>

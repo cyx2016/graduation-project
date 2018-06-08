@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>权限修改</title><link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <!--滑动开关css-->
+    <link rel="stylesheet" href="../static/css/bootstrap-switch.css">
+
+    <script type="text/javascript" src="../static/js/jquery-1.8.3.min.js" charset="UTF-8"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <!--滑动开关js-->
+    <script src="../static/js/bootstrap-switch.js"></script>
+    <script>
+        $(document).ready(function() {
+            var id=$("#id").val();
+            //查询出所有模块
+           $.ajax({
+                url: '/menu/show',
+                type: "POST",
+                //data: '{"id": "' + id + '"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var html="";
+                    var ajaxcontent="show";
+                    //清空内容
+                    $("#show").html("");
+                    for(var i=0;i<data.length;i++){
+                    html+="<div class=\"form-row\"><div class=\"form-group col-md-6\">"+
+                            "<input  type=\"text\" class=\"form-control\" name=\"name\" value=\""+data[i].name+"\" readonly></div>"+
+                        "<div class=\"form-group col-md-6\"><div class=\"bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-large\" >" +
+                        "<input type=\"checkbox\" value=\""+data[i].id+"\" id=\""+data[i].id+"\" name=\"del\"/>" +
+                        "</div></div></div>";
+                    }
+
+                    $("#show").append(html);
+                    $("input[name^='del']").bootstrapSwitch({
+                        onText:"是",
+                        offText:"否",
+                        onColor:"success",
+                        offColor:"warning",
+                        size:"small",
+                        onSwitchInnt:function(event,state){
+                            $(this).val($(this).attr("id"));
+                        },
+                        onSwitchChange:function(event,state){
+                            //$(this).val($(this).attr("id"));
+                            /*if(state==true){
+                                $(this).val("1");
+                            }else{
+                                $(this).val("2");
+                            }*/
+                        }
+                    });
+                    change();
+                    //$("input[name^='del']").change();
+
+                }, error: function () {
+                    alert("查询模块失败");
+                }
+            });
+            //修改按钮
+            /*$("#mod").click(function(){
+                var del=$("input[name='del']").val();
+                alert("点击"+del);
+                $.ajax({
+                    url: '/menu/showRole?'+id,
+                    type: "POST",
+                    data:'{"roleid": "' +id+ '"}',
+                    contentType: "application/json;charset=UTF-8",
+                    dataType: 'json',
+                    success: function (data) {
+                        for(var i=0;i<data.length;i++) {
+                            //if ($("#"+data[i].id).val() == "1") {
+                            //alert($("#delRole").val()+"cc");
+                            $("#"+data[i].id).change();
+                            $("#"+data[i].id).val("1");
+                            // } else {
+                            //$("#"+data[i].id).val("2");
+                            //}
+                        }
+                    },
+                    error:function(){
+                        alert("按钮修改失败");
+                    }
+                });
+            });*/
+        });
+        function change() {
+            var id=$("#id").val();
+            $.ajax({
+                url: '/menu/showRole?' + id,
+                type: "POST",
+                data: '{"roleid": "' + id + '"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    for(var i=0;i<data.length;i++){
+                        //alert("#"+data[i].id+"该表");
+                        //var trmp=$("#"+data[i].id);
+                        $("#"+data[i].menuid).change();
+                        $("#"+data[i].menuid).bootstrapSwitch('state', true);
+
+                    }
+                }, error: function () {
+                    alert("查询模块失败");
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                    <li class="nav-item" data-id="user">
+                        <a class="nav-link" href="adminHomePage.html">
+                            <span data-feather="home"></span>
+                            用户信息管理
+                        </a>
+                    </li>
+                    <li class="nav-item" data-id="role">
+                        <a class="nav-link active" href="roleManage.html" th:href="roleManage.html">
+                            <span data-feather="file"></span>
+                            用户权限管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <span data-feather="shopping-cart"></span>
+                            友情链接管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="newsKind.html">
+                            <span data-feather="users"></span>
+                            新闻种类管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="newsAdd.html">
+                            <span data-feather="users"></span>
+                            新闻内容管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <span data-feather="bar-chart-2"></span>
+                            文档管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <span data-feather="layers"></span>
+                            Integrations
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+    <div class="col-md-10 offset-md-1">
+        <form class="col-md-10 offset-md-1"action="/menu/mod" method="post">
+            <input type="text" th:value="${id}" id="id" name="id" hidden>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="test">功能模块</label>
+                    <input id="test" type="text" hidden>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="test1">是否有权限</label><br/>
+                    <input id="test1" type="text" hidden>
+                </div>
+            </div>
+            <div id="show">
+                <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="1"></label>
+                    <input id="1" type="text" class="form-control" name="name" value="新闻模块" readonly>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="menu1"></label><br/>
+                    <div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-large" > <!---->
+                        <input type="checkbox"   id="menu1" name="del" checked/>
+                        <!--<script>
+                            $('[name="del"]').bootstrapSwitch({
+                                onText:"否",
+                                offText:"是",
+                                onColor:"success",
+                                offColor:"warning",
+                                size:"small",
+                                onSwitchChange:function(event,state){
+                                    if(state==true){
+                                        $(this).val("1");
+                                    }else{
+                                        $(this).val("2");
+                                    }
+                                }
+                            });
+                        </script>-->
+                    </div>
+                </div>
+            </div>
+            </div>
+            <button type="submit" id="mod" class="btn btn-primary">修改</button>
+        </form>
+
+    </div>
+    <!--<script>
+        $('[name="del"]').bootstrapSwitch({
+            onText:"否",
+            offText:"是",
+            onColor:"success",
+            offColor:"warning",
+            size:"small",
+            onInit:function(event,state){
+               /* if(state==true){
+                    $(this).val("1");
+                }else{
+                    $(this).val("2");
+                }*/
+            }
+        });
+    </script>-->
+</main>
+
+</body>
+</html>

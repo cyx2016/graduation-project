@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新闻内容查询</title>
+    <script src="../static/js/jquery-1.8.3.min.js"></script>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <!--日期控件css-->
+    <link rel="stylesheet" href="../static/css/datetimepicker.css">
+    <!--文件上传css-->
+    <link rel="stylesheet" href="../static/css/fileinput/fileinput.css">
+
+    <script src="../static/js/fileinput/fileinput.js"></script>
+    <script src="../static/js/fileinput/zh.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <!--日期控件js-->
+    <script src="../static/js/bootstrap-datetimepicker.js"></script>
+    <script src="../static/js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <!--分页js-->
+    <script src="../static/js/page/bootstrap-paginator.js"></script>
+
+    <script>
+            $(document).ready(function() {
+                //新闻种类查询
+                $.ajax({
+                    url: '/newsKind/show',
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: 'json',
+                    success: function (data) {
+                        var sel= document.getElementById("kind");
+                        //清除所有选项
+                        document.getElementById("kind").length=0;
+                        var html="<option selected value=\"\">所有</option>";
+                        for(var i=0;i<data.length;i++){
+                            html+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+                        }
+                        $("#kind").html(html);
+                    },
+                    error:function(){
+                        alert("查询失败");
+                    }
+
+                });
+                //新闻查询
+                qry(1);
+                /*$.ajax({
+                url: '/news/show',
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {+
+                    $("#newstable tbody").html("");
+                    var html;
+                    for(var i=0;i<data.length;i++){
+                        var idtemp=data[i].id;
+                        var del=data[i].del=='1'?"hidden":"";
+                        var str ="/news/intoNewsMod?id="+idtemp;
+                        var str1 ="/news/intoNewsDetail?id="+idtemp;
+                        html+= "<tr>"+"<td hidden>"+data[i].id+"</td>"+
+                            "<td>" +data[i].title+"</td>"+
+                            "<td>" +data[i].kindname+"</td>"+
+                            "<td >"+data[i].username+"</td>"+
+                            "<td >"+data[i].desp+"</td>"+
+                            "<td >"+data[i].isshow+"</td>"+
+                            "<td >"+data[i].date+"</td>"+
+                            "<td>"+
+                            "<a  href="+str+" class=\"btn btn-primary btn-sm\">"+"修改"+"</a>  "+
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+del+">"+"删除"+"</button>  "+
+                            "<a  href="+str1+" class=\"btn btn-primary btn-sm\">"+"详细"+"</a>  "+"</td>"
+                            +"</tr>";
+                    }
+                    $("#newstable tbody").html(html);
+                },
+                error:function(){
+                    alert("查询失败");
+                }
+            });*/
+                //条件查询
+                $("#research").click(function () {
+                    var title = $("#title").val();
+                    var isshow = $("#isshow option:selected").val();
+                    var name = $("#name").val();
+                    var kind = $("#kind option:selected").val();
+                    var date1 = $("#dtp_input1").val();
+                    var date2 = $("#dtp_input2").val();
+                    var form = new FormData();
+                    qryByParams(1,title,isshow,name,kind ,date1,date2)
+
+            });
+                //删除操作
+                $("tbody").delegate("button", "click",function () {
+                    if (this.innerHTML == "删除") {
+                        var node = this.parentElement.parentElement;
+                        var id = this.parentElement.parentElement.children[0].innerHTML;
+                        $.ajax({
+                            url: '/news/del',
+                            data: '{"id": "' + id + '"}',
+                            /*async: true,*/
+                            type: "POST",
+                            contentType: "application/json",
+                            dataType: 'json',
+                            success: function (data) {
+                                if (data == "1") {
+                                    node.remove();
+                                    alert("删除成功");
+                                }
+                                else
+                                    alert("删除失败,原因数据库操作失败");
+                            },
+                            error: function () {
+                                alert("删除失败,原因数据上传失败");
+                            }
+                        });
+                    }
+                });
+            });
+            function qry(newPage) {
+                //新闻种类查询分页查询
+                $.ajax({
+                    url: '/news/show',
+                    type: "POST",
+                    data: '{"pageNo": "' + newPage + '"}',
+                    contentType: "application/json",
+                    dataType: 'json',
+                    success: function (page) {
+                        var data=page.results;
+                        var sel= document.getElementById("kind");
+                        //清除所有表格内容
+                        $("#newstable tbody").html("");
+                        var html;
+                        for(var i=0;i<data.length;i++){
+                            var idtemp=data[i].id;
+                            var del=data[i].del=='1'?"hidden":"";
+                            var str ="/news/intoNewsMod?id="+idtemp;
+                            var str1 ="/newstemplate?id="+idtemp;
+                            html+= "<tr>"+"<td hidden>"+data[i].id+"</td>"+
+                                "<td>" +data[i].title+"</td>"+
+                                "<td>" +data[i].kindname+"</td>"+
+                                "<td >"+data[i].username+"</td>"+
+                                "<td >"+data[i].desp+"</td>"+
+                                "<td >"+data[i].isshow+"</td>"+
+                                "<td >"+data[i].date+"</td>"+
+                                "<td>"+
+                                "<a  href="+str+" class=\"btn btn-primary btn-sm\">"+"修改"+"</a>  "+
+                                "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+del+">"+"删除"+"</button>  "+
+                                "<a  href="+str1+" class=\"btn btn-primary btn-sm\">"+"详细"+"</a>  "+"</td>"
+                                +"</tr>";
+                        }
+                        $("#newstable tbody").html(html);
+                        var options = {
+                            currentPage: page.pageNo,
+                            totalPages: page.totalPage,
+                            numberOfPages: 5,
+                            onPageClicked:function(event, originalEvent, type,page){
+                                qry(page);
+                            }
+                        }
+                        $('#example').bootstrapPaginator(options);
+                    },
+                    error:function(){
+                        var options = {
+                            currentPage: 1,
+                            totalPages: 1,
+                            numberOfPages: 5,
+                            onPageChanged:function(event, oldPage, newPage){
+                                qry(newPage);
+                            }
+                        }
+                        $('#example').bootstrapPaginator(options);
+                        alert("查询失败");
+                    }
+
+                });
+            }
+            function qryByParams(newPage,title,isshow,name,kind ,date1,date2){
+                var pageNo =newPage;
+                /*var form = new FormData();
+                form.append("title",title);form.append("isshow",isshow);form.append("usernamee",name);
+                form.append("kindname",kind);form.append("date1",date1);form.append("date2",date2);
+                form.append("pageNo",pageNo);*/
+                $.ajax({
+                    url: '/news/showByParams',
+                    data:'{"title": "' +title+ '","isshow":"'+isshow+'","username":"'+name+'", "kindname": "'+kind
+                    +'", "date1": "'+date1+'", "date2": "'+date2+'", "pageNo": "'+pageNo+'"}',
+                    /*data:form,*/
+                    /*async: true,*/
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: 'json',
+                    success: function (page) {
+                        var data=page.results;
+                        $("#newstable tbody").html("");
+                        var html;
+                        for(var i=0;i<data.length;i++){
+                            var idtemp=data[i].id;
+                            var del=data[i].del=='1'?"hidden":"";
+                            var str ="/news/intoNewsMod?id="+idtemp;
+                            var str1 ="/newstemplate?id="+idtemp;
+                            html+= "<tr>"+"<td hidden>"+data[i].id+"</td>"+
+                                "<td>" +data[i].title+"</td>"+
+                                "<td>" +data[i].kindname+"</td>"+
+                                "<td >"+data[i].username+"</td>"+
+                                "<td >"+data[i].desp+"</td>"+
+                                "<td >"+data[i].isshow+"</td>"+
+                                "<td >"+data[i].date+"</td>"+
+                                "<td>"+
+                                "<a  href="+str+" class=\"btn btn-primary btn-sm\">"+"修改"+"</a>  "+
+                                "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+del+">"+"删除"+"</button>  "+
+                                "<a  href="+str1+" class=\"btn btn-primary btn-sm\">"+"详细"+"</a>  "+"</td>"
+                                +"</tr>";
+                        }
+                        $("#newstable tbody").html(html);
+                        var options = {
+                            currentPage: page.pageNo,
+                            totalPages: page.totalPage,
+                            numberOfPages: 5,
+                            onPageClicked:function(event, originalEvent, type,page){
+                                qryByParams(page,title,isshow,name,kind ,date1,date2);
+                            }
+                        }
+                        $('#example').bootstrapPaginator(options);
+                    },
+                    error:function(){
+                        var options = {
+                            currentPage: 1,
+                            totalPages: 1,
+                            numberOfPages: 5,
+                            onPageChanged:function(event, oldPage, newPage){
+                                qry(newPage);
+                            }
+                        }
+                        $('#example').bootstrapPaginator(options);
+                        alert("查询失败");
+                    }
+                });
+            }
+    </script>
+</head>
+<body>
+
+<!--导航栏固定-->
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+        </li>
+    </ul>
+</nav>
+<!--侧栏固定-->
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                    <li class="nav-item" data-id="user">
+                        <a class="nav-link" href="/adminHomePage" th:href="@{/adminHomePage}">
+                            <span data-feather="home"></span>
+                            用户信息管理 <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-id="role">
+                        <a class="nav-link" href="/roleManage" th:href="@{/roleManage}">
+                            <span data-feather="file"></span>
+                            用户权限管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/links" th:href="@{/links}">
+                            <span data-feather="shopping-cart"></span>
+                            友情链接管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/newsKind" th:href="@{/newsKind}">
+                            <span data-feather="users"></span>
+                            新闻种类管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/newsShow" th:href="@{/newsShow}">
+                            <span data-feather="users"></span>
+                            新闻内容管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docKind" th:href="@{/docKind}">
+                            <span data-feather="bar-chart-2"></span>
+                            文档种类管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docShow" th:href="@{/docShow}">
+                            <span data-feather="bar-chart-2"></span>
+                            文档管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"  href="/adminProject" th:href="@{/adminProject}">
+                            <span data-feather="layers"></span>
+                            项目管理
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+<!--主体-->
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+    <h2>条件查询</h2>
+    <form class="form-inline col-md-12">
+        <label for="isshow">是否主页展示</label>
+        <select id="isshow" class="form-control col-md-2 mx-sm-3">
+            <option selected value=""></option>
+            <option value="1">是</option>
+            <option value="2">否</option>
+        </select>
+        <label for="title">标题</label>
+        <input type="text" class="form-control col-md-2 mx-sm-3" id="title" placeholder="请输入标题">
+        <label for="name">作者</label>
+        <input type="text" class="form-control col-md-2 mx-sm-3" id="name" placeholder="请输入作者">
+        <label for="kind">种类</label>
+        <select id="kind" class="form-control col-md-2 mx-sm-3">
+            <!--<option selected value="">所有</option>
+            <option value="1">角色1</option>
+            <option value="2">角色2</option>-->
+        </select>
+        <br/><br/><br/><br/>
+        <div class="form-row col-md-10"><!---->
+            <div class="form-group col-md-6"><!---->
+                <label for="dtp_input1">开始日期&nbsp;&nbsp;</label>
+                <div class="input-group date form_date" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input1" data-link-format="yyyy-mm-dd">
+                    <input class="form-control" size="16" type="text" value="" name="birth" readonly>
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span></button>
+                        <button class="btn btn-primary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></button>
+                    </div>
+                </div>
+                <input type="hidden" id="dtp_input1" value="" /><br/>
+            </div>
+            <div class="form-group col-md-6"><!---->
+                <label for="dtp_input2">结束日期&nbsp;&nbsp;</label>
+                <div class="input-group date form_date" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                    <input class="form-control" size="16" type="text" value="" name="birth" readonly>
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span></button>
+                        <button class="btn btn-primary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></button>
+                    </div>
+                </div>
+                <input type="hidden" id="dtp_input2" value="" /><br/>
+            </div>
+        </div>
+        <button id="research" type="button" class="btn btn-primary pull-right">
+            <span class="glyphicon glyphicon-search"></span>查询
+        </button>
+    </form>
+    <br/>
+    <div class="row">
+        <div class="col-md-9 ml-sm-auto col-lg-10">
+            <h2>新闻管理</h2>
+        </div>
+        <div class="col-md-3 ml-sm-auto col-lg-2">
+            <button type="button-right" class="btn btn-secondary"  onclick="window.location.href='/newsAdd'">增加</button>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table id="newstable" class="table table-striped "><!--table-sm-->
+            <thead>
+            <tr>
+                <th>新闻标题</th>
+                <th>种类</th>
+                <th>作者</th>
+                <th>简述</th>
+                <th>是否主页展示</th>
+                <th>日期</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!--<tr th:each="user : ${userList}">
+                <td th:text="${user.id}">无</td>
+                <td th:text="${user.name}">无</td>
+                <td th:text="${user.password}">无</td>
+                <td th:text="${user.role}">无</td>
+                <td th:text="${user.role}">无</td>
+                <td th:text="${user.develope}">无</td>
+                <td>
+                    <a href="/user/intoUserMod?id="+${user.id} class="btn btn-primary btn-sm">修改</a>
+                    <button href="#" class="btn btn-primary btn-sm">删除</button>
+                    <a href="#" class="btn btn-primary btn-sm">详细</a>
+                </td>
+            </tr>-->
+            </tbody>
+        </table>
+        <div id="example"></div>
+        <span style="font-family:'sans serif, tahoma, verdana, helvetica';"><span
+                style="white-space:normal;"> </span></span>
+    </div>
+</main>
+
+<!--日期js-->
+<script>
+    $('.form_date').datetimepicker({
+        language:  'zh-CN',
+        weekStart: 1,
+        todayBtn:  1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+</script>
+
+</body>
+</html>

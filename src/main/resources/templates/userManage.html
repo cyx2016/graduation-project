@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>普通用户管理界面</title>
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+    <!--日期控件css-->
+    <link rel="stylesheet" href="../static/css/datetimepicker.css">
+
+    <script src="../static/js/jquery-1.8.3.min.js"></script>
+    <script src="../static/js/page/bootstrap-paginator.js"></script>
+    <!--日期控件js-->
+    <script src="../static/js/bootstrap-datetimepicker.js"></script>
+    <script src="../static/js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        $(document).ready(function() {
+            qry(1);
+            qrymenu();
+        });
+        //全部查询
+        function  qry(newPage) {
+            $.ajax({
+                url: '/project/pageUserShow',
+                type: "POST",
+                data: '{"pageNo": "' + newPage + '"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    //先清空
+                    $("#projecttable tbody").html("");
+                    var html;
+                    var result = data.results;
+                    var status;//状态修改
+                    for (var i = 0; i < result.length; i++) {
+                        var idtemp = result[i].id;
+                        var str = "/project/intoProjectMod?id=" + idtemp;
+                        var str1 = "/project/intoProjectDetail?id=" + idtemp;
+                        var status;//状态修改
+                        var mod="";//修改按钮说明
+                        var hidden="";
+                        var hidden1="";//失败按钮
+                        switch (result[i].status){
+                            case "1":status="申请中"; mod="审核";hidden="hidden";hidden1="hidden";break;
+                            case "2":status="审核过";mod="启动";hidden1="hidden";break;
+                            case "3":status="进行中";mod="结束";break;
+                            case "4":status="结束";mod="结束";hidden="hidden";hidden1="hidden";break;
+                            case "5":status="失败";mod="结束";hidden="hidden";hidden1="hidden";break;
+                            default:status="异常";mod="结束";hidden="hidden";hidden1="hidden";break;
+                        }
+                        html += "<tr>" + "<td hidden>" + result[i].id + "</td>" +
+                            "<td hidden>" + result[i].status + "</td>"+
+                            "<td>" + result[i].name + "</td>" +
+                            "<td>" + result[i].leader + "</td>" +
+                            "<td>" + status + "</td>" +
+                            "<td>" + result[i].datetime + "</td>" +
+                            "<td>" +
+                            //"<a  href=" + str + " class=\"btn btn-primary btn-sm\">" + "修改" + "</a>  " +
+                            //"<button  href=\"#\" class=\"btn btn-primary btn-sm\" >" + "删除" + "</button>  " +
+                            "<a  href=\" " + str1 + " \" class=\"btn btn-primary btn-sm\">" + "详细" + "</a>  " +
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+hidden+" >" + mod + "</button>  "+
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+hidden1+" >" + "失败" + "</button>  "+ "</td>"
+                            + "</tr>";
+                    }
+                    //填充表
+                    $("#projecttable tbody").html(html);
+                    var options = {
+                        currentPage: data.pageNo,
+                        totalPages: data.totalPage,
+                        numberOfPages: 5,
+                        onPageClicked:function(event, originalEvent, type,page){
+                            qry(page);
+                        },
+                        /*onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }*/
+                    }
+                    $('#example').bootstrapPaginator(options);
+                },
+                error:function(){
+                    var options = {
+                        currentPage: 1,
+                        totalPages: 1,
+                        numberOfPages: 5,
+                        onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }
+                    }
+                    $('#example').bootstrapPaginator(options);
+                    alert("查询失败");
+                }
+            });
+        }
+        //条件查询
+        function qryByParams(page,name,leader,status,date1,date2) {
+            /*var name = $("#name").val();
+            var leader = $("#leader").val();
+            var status = $("#status").val();
+            var date1 = $("#dtp_input1").val();
+            var date2 = $("#dtp_input2").val();*/
+            $.ajax({
+                url: '/project/showByParamsAndUserId',
+                data:'{"name": "' +name+ '","leader":"'+leader+'","status":"'+status+'","date1": "'+date1+'","date2": "'+date2+'","pageNo": "'+page+'"}',
+                /*async: true,*/
+                type: "POST",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    //先清空
+                    $("#projecttable tbody").html("");
+                    var html;
+                    var result = data.results;
+                    var status1;//状态修改
+                    for (var i = 0; i < result.length; i++) {
+                        var idtemp = result[i].id;
+                        var str = "/project/intoProjectMod?id=" + idtemp;
+                        var str1 = "/project/intoProjectDetail?id=" + idtemp;
+                        var status;//状态修改
+                        var mod="";//修改按钮说明
+                        var hidden="";
+                        var hidden1="";//失败按钮
+                        switch (result[i].status){
+                            case "1":status="申请中"; mod="审核";hidden="hidden";hidden1="hidden";break;
+                            case "2":status="审核过";mod="启动";hidden1="hidden";break;
+                            case "3":status="进行中";mod="结束";break;
+                            case "4":status="结束";mod="结束";hidden="hidden";hidden1="hidden";break;
+                            case "5":status="失败";mod="结束";hidden="hidden";hidden1="hidden";break;
+                            default:status="异常";mod="结束";hidden="hidden";hidden1="hidden";break;
+                        }
+                        html += "<tr>" + "<td hidden>" + result[i].id + "</td>" +
+                            "<td hidden>" + result[i].status + "</td>"+
+                            "<td>" + result[i].name + "</td>" +
+                            "<td>" + result[i].leader + "</td>" +
+                            "<td>" + status + "</td>" +
+                            "<td>" + result[i].datetime + "</td>" +
+                            "<td>" +
+                            //"<a  href=" + str + " class=\"btn btn-primary btn-sm\">" + "修改" + "</a>  " +
+                            //"<button  href=\"#\" class=\"btn btn-primary btn-sm\" >" + "删除" + "</button>  " +
+                            "<a  href=\" " + str1 + " \" class=\"btn btn-primary btn-sm\">" + "详细" + "</a>  " +
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+hidden+" >" + mod + "</button>  "+
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" "+hidden1+" >" + "失败" + "</button>  "+ "</td>"
+                            + "</tr>";
+                    }
+                    /*for (var i = 0; i < result.length; i++) {
+                        var idtemp = result[i].id;
+                        var str = "/project/intoProjectMod?id=" + idtemp;
+                        var str1 = "/project/intoProjectDetail?id=" + idtemp;
+                        switch (result[i].status){
+                            case "1":status1="申请中";break;
+                            case "2":status1="审核过";break;
+                            case "3":status1="进行中";break;
+                            case "4":status1="结束";break;
+                            case "5":status1="失败";break;
+                            default:status1="异常";break;
+                        }
+                        html += "<tr>" + "<td hidden>" + result[i].id + "</td>" +
+                            "<td hidden>" + result[i].status + "</td>"+
+                            "<td>" + result[i].name + "</td>" +
+                            "<td>" + result[i].leader + "</td>" +
+                            "<td>" + status1 + "</td>" +
+                            "<td>" + result[i].datetime + "</td>" +
+                            "<td>" +
+                            "<a  href=" + str + " class=\"btn btn-primary btn-sm\">" + "修改" + "</a>  " +
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" >" + "删除" + "</button>  " +
+                            "<a  href=" + str1 + " class=\"btn btn-primary btn-sm\">" + "详细" + "</a>  " +
+                            "<button  href=\"#\" class=\"btn btn-primary btn-sm\" >" + "更新" + "</button>  "+ "</td>"
+                            + "</tr>";
+                    }*/
+                    //填充表
+                    $("#projecttable tbody").html(html);
+                    var options = {
+                        currentPage: data.pageNo,
+                        totalPages: data.totalPage,
+                        numberOfPages: 5,
+                        onPageClicked:function(event, originalEvent, type,page){
+                            qryByParams(page,name,leader,status,date1,date2);
+                        },
+                        /*onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }*/
+                    }
+                    $('#example').bootstrapPaginator(options);
+                    alert("查询成功");
+                },
+                error:function(){
+                    var options = {
+                        currentPage: 1,
+                        totalPages: 1,
+                        numberOfPages: 5,
+                        onPageChanged:function(event, oldPage, newPage){
+                            qry(newPage);
+                        }
+                    }
+                    $('#example').bootstrapPaginator(options);
+                    alert("查询失败");
+                }
+            });
+        }
+
+        //查询权限
+        function qrymenu(){
+            var id="[[${session.userroleid}]]";
+            $.ajax({
+                url: '/menu/showRole',
+                type: "POST",
+                data:'{"roleid": "' +id+'"}',
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (data) {
+                    var result=data;
+                    var html="";
+                    var active="";
+                    //清空菜单
+                    $("#menu").html();
+                    //项目菜单为默认的
+                    html="<li class=\"nav-item\">\n" +
+                        "                            <a class=\"nav-link active\"  href=\"/userManage\" th:href=\"@{/userManage}\">\n" +
+                        "                                <span data-feather=\"layers\"></span>\n" +
+                        "                                项目管理\n" +
+                        "                            </a>\n" +
+                        "                        </li>";
+                    for(var i=0;i<result.length;i++){
+                        html+="<li class=\"nav-item\">\n<a class=\"nav-link\" href=\""+result[i].url+"\" th:href=\"@{/userLinks}\">" +
+                            "<span data-feather=\"shopping-cart\"></span>\n" +
+                            result[i].name + " </a>\n" + "</li>\n";
+                    }
+                    $("#menu").html(html);
+                },error:function(){
+
+                }
+            });
+        }
+
+        //查询按钮事件触发
+       $(function () {
+           //参数获取
+           var name = $("#name").val();
+           var leader = $("#leader").val();
+           var status = $("#status").val();
+           var date1 = $("#dtp_input1").val();
+           var date2 = $("#dtp_input2").val();
+            //用户条件查询
+            $("#research").click(function () {
+                var name = $("#name").val();
+                var leader = $("#leader").val();
+                var status = $("#status").val();
+                var date1 = $("#dtp_input1").val();
+                var date2 = $("#dtp_input2").val();
+                qryByParams(1,name,leader,status,date1,date2);
+            });
+        });
+
+        //删除
+        $(function () {
+            //删除操作
+            $("tbody").delegate("button", "click",function () {
+                //alert("值:"+this.innerHTML);
+                if(this.innerHTML=="删除"){
+                    var node=this.parentElement.parentElement;
+                    var id=this.parentElement.parentElement.children[0].innerHTML;
+                    $.ajax({
+                        url: '/project/del',
+                        data:'{"id": "' +id+ '"}',
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function (data) {
+                            if(data=="1"){
+                                node.remove();
+                                alert("删除成功");
+                            }
+                            else
+                                alert("删除失败,原因数据库操作失败");
+                        },
+                        error:function(){
+                            alert("删除失败,原因数据上传失败");
+                        }
+                    });
+                };
+                //更新操作
+                if(this.innerHTML=="启动"||this.innerHTML=="结束"){
+                    var node=this.parentElement.parentElement;
+                    var id=this.parentElement.parentElement.children[0].innerHTML;
+                    var status=this.parentElement.parentElement.children[1].innerHTML;
+                    var statusname=this.parentElement.parentElement.children[4].innerHTML;
+                    $.ajax({
+                        url: '/project/update',
+                        data:'{"id": "' +id+'","status":"'+status+'"}',
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function (data) {
+                            if(data=="1"){
+                                switch (status){
+                                    //case "1":status="申请中";break;
+                                    case "1":statusname="审核过";break;
+                                    case "2":statusname="进行中";
+                                        var self=node.getElementsByTagName('td')[6].children[1];
+                                        node.getElementsByTagName('td')[6].removeChild(self);break;
+                                    case "3":statusname="结束";
+                                        var self=node.getElementsByTagName('td')[6].children[1];
+                                        var self1=node.getElementsByTagName('td')[6].children[2];
+                                        node.getElementsByTagName('td')[6].removeChild(self);
+                                        node.getElementsByTagName('td')[6].removeChild(self1);break;
+                                    case "4":statusname="失败";break;
+                                    default:statusname="异常";break;
+                                }
+                                node.getElementsByTagName('td')[4].innerHTML=statusname;
+                                alert("更行成功");
+                            }
+                            else
+                                alert("删除失败,原因数据库操作失败");
+                        },
+                        error:function(){
+                            alert("删除失败,原因数据上传失败");
+                        }
+                    });
+                };
+                if(this.innerHTML=="失败"){
+                    var node=this.parentElement.parentElement;
+                    var id=this.parentElement.parentElement.children[0].innerHTML;
+                    var status="4";
+                    var statusname=this.parentElement.parentElement.children[4].innerHTML;
+                    $.ajax({
+                        url: '/project/update',
+                        data:'{"id": "' +id+'","status":"'+status+'"}',
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function (data) {
+                            if(data=="1"){
+                                statusname="失败";
+                                var self=node.getElementsByTagName('td')[6].children[1];
+                                var self1=node.getElementsByTagName('td')[6].children[2];
+                                node.getElementsByTagName('td')[4].innerHTML=statusname;
+                                node.getElementsByTagName('td')[1].innerHTML=parseInt(status)+1;
+                                node.getElementsByTagName('td')[6].removeChild(self);
+                                node.getElementsByTagName('td')[6].removeChild(self1);
+                                //node.getElementsByTagName('td')[6].children[3].innerHTML="测试";
+                                //alert(node.getElementsByTagName('td')[6].innerHTML);
+                                alert("更行成功");
+                            }
+                            else
+                                alert("删除失败,原因数据库操作失败");
+                        },
+                        error:function(){
+                            alert("删除失败,原因数据上传失败");
+                        }
+                    });
+                };
+            });
+        });
+
+
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+        </li>
+    </ul>
+</nav>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                        <!--<li class="nav-item">
+                            <a class="nav-link" href="/userLinks" th:href="@{/userLinks}">
+                                <span data-feather="shopping-cart"></span>
+                                友情链接管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/userNewsShow" th:href="@{/userNewsShow}">
+                                <span data-feather="users"></span>
+                                新闻内容管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/userDocShow" th:href="@{/userDocShow}">
+                                <span data-feather="bar-chart-2"></span>
+                                文档管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active"  href="/userManage" th:href="@{/userManage}">
+                                <span data-feather="layers"></span>
+                                项目管理
+                            </a>
+                        </li>-->
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+                <div id="content"></div>
+                <h2>条件查询</h2>
+
+                <form class="form-inline col-md-12">
+                    <label for="name">名称</label>
+                    <input type="text" class="form-control col-md-3 mx-sm-3" id="name" placeholder="请输入项目名称">
+                    <label for="leader">领导人</label>
+                    <input type="text" class="form-control col-md-3 mx-sm-3" id="leader" placeholder="请输入领导人">
+                    <label for="status">状态</label>
+                    <select id="status" class="form-control col-md-3 mx-sm-3">
+                        <option selected value="0">所有</option>
+                        <option value="1">审核中</option>
+                        <option value="2">进展中</option>
+                        <option value="3">完成</option>
+                        <option value="4">失败</option>
+                    </select>
+                    <br/><br/><br/><br/>
+                    <div class="form-row"><!---->
+                        <div class="form-group col-md-6"><!---->
+                            <label for="dtp_input1">开始日期&nbsp;&nbsp;</label>
+                            <div class="input-group date form_date" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input1" data-link-format="yyyy-mm-dd">
+                                <input class="form-control" size="16" type="text" value="" name="birth" readonly>
+                                <div class="input-group-append">
+                                    <button class="btn btn-secondary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span></button>
+                                    <button class="btn btn-primary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="dtp_input1" value="" /><br/>
+                        </div>
+                        <div class="form-group col-md-6"><!---->
+                            <label for="dtp_input2">结束日期&nbsp;&nbsp;</label>
+                            <div class="input-group date form_date" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                                <input class="form-control" size="16" type="text" value="" name="birth" readonly>
+                                <div class="input-group-append">
+                                    <button class="btn btn-secondary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span></button>
+                                    <button class="btn btn-primary" type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="dtp_input2" value="" /><br/>
+                        </div>
+                    </div>
+                    <button id="research" type="button" class="btn btn-primary offset-md-3">
+                        <span class="glyphicon glyphicon-search"></span>查询
+                    </button>
+                </form>
+                <br/>
+                <div class="row">
+                    <div class="col-md-9 ml-sm-auto col-lg-10">
+                        <h2>项目信息</h2>
+                    </div>
+                    <div class="col-md-3 ml-sm-auto col-lg-2">
+                        <button type="button-right" class="btn btn-secondary" href="/projectAdd" onclick="window.location.href='/userProjectAdd'">增加</button>
+                    </div>
+                </div>
+                <!--      <h2>用户信息查询</h2> <button type="button" class="btn btn-secondary">增加</button>-->
+                <div class="table-responsive">
+                    <table id="projecttable" class="table table-striped "><!--table-sm-->
+                        <thead>
+                        <tr>
+                            <th>项目名称</th>
+                            <th>项目领导人</th>
+                            <th>项目状态</th>
+                            <th>项目开始时间</th>
+                            <th>用户信息修改</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!--<tr th:each="project : ${projectList}">
+                            <td th:text="${project.id}" hidden>无</td>
+                            <td th:text="${project.name}">无</td>
+                            <td th:text="${project.leader}">无</td>
+                            <td th:text="${project.status}">无</td>
+                            <td th:text="${project.datetime}">无</td>
+                            <td>
+                                <a href="/project/intoUserMod?id="+${project.id} class="btn btn-primary btn-sm">修改</a>
+                                <button href="#" class="btn btn-primary btn-sm">删除</button>
+                                <a href="#" class="btn btn-primary btn-sm">详细</a>
+                            </td>
+                        </tr>-->
+
+                        </tbody>
+                    </table>
+
+
+                    <div id="example"></div>
+
+                    <span style="font-family:'sans serif, tahoma, verdana, helvetica';"><span
+                            style="white-space:normal;"> </span></span>
+                </div>
+            </main>
+        </div>
+
+    </div>
+    <!--日期js-->
+    <script>
+        $('.form_date').datetimepicker({
+            language:  'zh-CN',
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 2,
+            forceParse: 0
+        });
+    </script>
+
+</body>
+</html>

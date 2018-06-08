@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户详细信息</title>
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/single/dashboard.css">
+</head>
+<body>
+<!--导航栏固定-->
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="value1"> [[${session.username}]]</a>
+
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#" th:href="@{/logout}">登出</a>
+        </li>
+    </ul>
+</nav>
+<!--侧栏固定-->
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul  class="nav flex-column mb-2" id="menu"><!--class="nav flex-column"-->
+                    <li class="nav-item" data-id="user">
+                        <a class="nav-link active" href="/adminHomePage" th:href="@{/adminHomePage}">
+                            <span data-feather="home"></span>
+                            用户信息管理 <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-id="role">
+                        <a class="nav-link" href="/roleManage" th:href="@{/roleManage}">
+                            <span data-feather="file"></span>
+                            用户权限管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/links" th:href="@{/links}">
+                            <span data-feather="shopping-cart"></span>
+                            友情链接管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/newsKind" th:href="@{/newsKind}">
+                            <span data-feather="users"></span>
+                            新闻种类管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/newsShow" th:href="@{/newsShow}">
+                            <span data-feather="users"></span>
+                            新闻内容管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docKind" th:href="@{/docKind}">
+                            <span data-feather="bar-chart-2"></span>
+                            文档种类管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docShow" th:href="@{/docShow}">
+                            <span data-feather="bar-chart-2"></span>
+                            文档管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"  href="/adminProject" th:href="@{/adminProject}">
+                            <span data-feather="layers"></span>
+                            项目管理
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+<!--主体-->
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+    <form class="col-md-10 offset-md-1">
+        <input name="id" th:value="${user.id}"  hidden>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="inputEmail4">用户名</label>
+                <input type="text"name="name" class="form-control" id="inputEmail4" placeholder="Email" th:value="${user.name}" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="inputPassword4">密码</label>
+                <input type="text" name="password" class="form-control" id="inputPassword4" placeholder="Password" th:value="${user.password}" readonly>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="sex">性别</label>
+                <input type="text"  name="sex" class="form-control" id="sex"  placeholder="男" th:value="${user.sex}" readonly>
+                <!--<select id="sex" class="form-control" name="sex" readonly>
+                    <option value="男" th:selected="${user.sex}=='男'?'true':'false'">&lt;!&ndash;&ndash;&gt;男</option>
+                    <option value="女" th:selected="${user.sex}=='女'?'true':'false'"> &lt;!&ndash;&ndash;&gt;女</option>
+                </select>-->
+            </div>
+            <div class="form-group col-md-6">
+                <label for="birth">出生日</label>
+                <input type="text" class="form-control" id="birth" name="birth" placeholder="1970-01-01" th:value="${user.birth}" readonly>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="inputCity">研究方向</label>
+                <input type="text" class="form-control"  id="inputCity" name="develope" placeholder="人工智能" th:value="${user.develope}" readonly>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="role">角色</label>
+                <input type="text"  name="role" class="form-control" id="role"  placeholder="角色1" th:value="${user.role}" readonly>
+                <!--select id="inputState" class="form-control" name="role" th:value="${user.role}" readonly>
+                    <option  value="1" th:selected="${user.role}=='1'?'true':'false'">角色1</option>
+                    <option value="2" th:selected="${user.role}=='2'?'true':'false'">角色2</option>
+                </select>-->
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12" >
+                <label for="Introduction">个人简介</label>
+                <textarea rows="5" class="form-control" name="Introduction" id="Introduction" placeholder="个人简介" wrap="hard" th:text="${user.introduction}" readonly></textarea>
+            </div>
+        </div>
+        <!--<div class="form-group">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="gridCheck">
+                <label class="form-check-label" for="gridCheck">
+                    Check me out
+                </label>
+            </div>
+        </div>-->
+    </form>
+    <div class="col-md-10 offset-md-1">
+    <button class="btn btn-primary" onclick="javascript:history.go(-1)">返回</button>
+    </div>
+</main>
+</body>
+</html>

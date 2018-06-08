@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cyx.mapper.DocumentMapper">
+  <resultMap id="BaseResultMap" type="com.cyx.pojo.Document">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="kind" jdbcType="VARCHAR" property="kind" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="level" jdbcType="VARCHAR" property="level" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, kind, name, author, url, level
+  </sql>
+  <select id="selectByExample" parameterType="com.cyx.pojo.DocumentExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from document
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <select id="qry" resultType="com.cyx.pojo.Document">
+    SELECT document.id, document.kind, document.name, author,user.name as authorname,  url, level,document_category.name as kindname
+    FROM document LEFT OUTER JOIN user on author=user.id LEFT OUTER JOIN document_category  on document.kind=document_category.id
+    order by document.kind,document.name,document.id
+  </select>
+  <select id="getDocListByParams" parameterType="com.cyx.pojo.Document" resultType="com.cyx.pojo.Document">
+    SELECT document.id, document.kind, document.name, author,user.name as authorname,  url, level,document_category.name as kindname
+    FROM document LEFT OUTER JOIN user on author=user.id LEFT OUTER JOIN document_category  on document.kind=document_category.id
+    where 1=1
+    <if test="id != null and id != ''">
+      and document.id = #{id,jdbcType=VARCHAR}
+    </if>
+    <if test="kind != null and kind != ''">
+      and document.kind = #{kind,jdbcType=VARCHAR}
+    </if>
+    <if test="name != null and name != ''">
+      and  document.name LIKE CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="author != null and author != ''">
+      and author = #{author,jdbcType=VARCHAR}
+    </if>
+    <if test="url != null and url != ''">
+      and url = #{url,jdbcType=VARCHAR}
+    </if>
+    <if test="authorName != null and authorName != ''">
+      and user.name LIKE CONCAT('%',#{authorName,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="level != null and level != ''">
+      and level = #{level,jdbcType=VARCHAR}
+    </if>
+    order by document.kind,document.name,document.id
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from document
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from document
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.cyx.pojo.DocumentExample">
+    delete from document
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.cyx.pojo.Document">
+    insert into document (id, kind, name, 
+      author, url, level)
+    values (#{id,jdbcType=VARCHAR}, #{kind,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{author,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cyx.pojo.Document">
+    insert into document
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="kind != null">
+        kind,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="author != null">
+        author,
+      </if>
+      <if test="url != null">
+        url,
+      </if>
+      <if test="level != null">
+        level,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="kind != null">
+        #{kind,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null">
+        #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        #{level,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.cyx.pojo.DocumentExample" resultType="java.lang.Long">
+    select count(*) from document
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update document
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.kind != null">
+        kind = #{record.kind,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.author != null">
+        author = #{record.author,jdbcType=VARCHAR},
+      </if>
+      <if test="record.url != null">
+        url = #{record.url,jdbcType=VARCHAR},
+      </if>
+      <if test="record.level != null">
+        level = #{record.level,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update document
+    set id = #{record.id,jdbcType=VARCHAR},
+      kind = #{record.kind,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      author = #{record.author,jdbcType=VARCHAR},
+      url = #{record.url,jdbcType=VARCHAR},
+      level = #{record.level,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cyx.pojo.Document">
+    update document
+    <set>
+      <if test="kind != null">
+        kind = #{kind,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null">
+        author = #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        level = #{level,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cyx.pojo.Document">
+    update document
+    set kind = #{kind,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      author = #{author,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      level = #{level,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cyx.mapper.ProjectMapper">
+  <resultMap id="BaseResultMap" type="com.cyx.pojo.Project">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="leader" jdbcType="VARCHAR" property="leader" />
+    <result column="datetime" jdbcType="VARCHAR" property="datetime" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="duration" jdbcType="VARCHAR" property="duration" />
+    <result column="fund" jdbcType="VARCHAR" property="fund" />
+    <result column="member" jdbcType="VARCHAR" property="member" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, leader, datetime, status, duration, fund, member
+  </sql>
+  <select id="getProjectListByParams" parameterType="com.cyx.pojo.Project" resultType="com.cyx.pojo.Project">
+    select project.id, project.name, leader, datetime, status, duration, fund, member
+    from project LEFT OUTER JOIN user ON project.leader=user.id
+    WHERE 1=1
+    <if test="id != null and id!=''" >
+      and project.id =#{id,jdbcType=VARCHAR}
+    </if>
+    <if test="name != null and name!=''" >
+    and project.name like  CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+  </if>
+    <if test="date1 != null and date1!=''" >
+      and datetime &gt; #{date1,jdbcType=VARCHAR}
+    </if>
+    <if test="date2 != null and date2 !=''" >
+      and datetime &lt; #{date2,jdbcType=VARCHAR}
+    </if>
+    <if test="status != null and status!=''">
+      and status =#{status,jdbcType=VARCHAR}
+    </if>
+    <if test="leader != null and leader!=''">
+      and user.NAME LIKE CONCAT('%',#{leader,jdbcType=VARCHAR},'%')
+    </if>
+    ORDER BY datetime,status,project.id
+  </select>
+
+  <select id="getProjectListByParamsAndUserId" parameterType="com.cyx.pojo.Project" resultType="com.cyx.pojo.Project">
+    select project.id, project.name, leader, datetime, status, duration, fund, member
+    from project LEFT OUTER JOIN user ON project.leader=user.id
+    WHERE 1=1
+    <if test="leader != null and leader!=''" >
+      and project.leader =#{leader,jdbcType=VARCHAR}
+    </if>
+    <if test="member != null and member!=''" >
+      and member like  CONCAT('%',#{member,jdbcType=VARCHAR},'%') or leader = #{member,jdbcType=VARCHAR}
+    </if>
+    <if test="id != null and id!=''" >
+      and project.id =#{id,jdbcType=VARCHAR}
+    </if>
+    <if test="name != null and name!=''" >
+      and project.name like  CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="date1 != null and date1!=''" >
+      and datetime &gt; #{date1,jdbcType=VARCHAR}
+    </if>
+    <if test="date2 != null and date2 !=''" >
+      and datetime &lt; #{date2,jdbcType=VARCHAR}
+    </if>
+    <if test="status != null and status!=''">
+      and status =#{status,jdbcType=VARCHAR}
+    </if>
+    <if test="leader != null and leader!=''">
+      and user.NAME LIKE CONCAT('%',#{leader,jdbcType=VARCHAR},'%')
+    </if>
+    ORDER BY datetime,status,project.id
+  </select>
+  <select id="queryList"  resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> FROM project ORDER BY datetime,status,id
+  </select>
+  <select id="qryByLeaderOrMember" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> FROM project
+    where leader = #{leaderOrMember,jdbcType=VARCHAR} OR member LIKE CONCAT('%',#{leaderOrMember,jdbcType=VARCHAR},'%')
+    ORDER BY datetime,status,id
+  </select>
+  <select id="qryByLeader" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from project
+    where leader = #{leader,jdbcType=VARCHAR} and status in('1','2','3')
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from project
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from project
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.cyx.pojo.Project">
+    insert into project (id, name, leader, 
+      datetime, status, duration, 
+      fund, member)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{leader,jdbcType=VARCHAR}, 
+      #{datetime,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{duration,jdbcType=VARCHAR}, 
+      #{fund,jdbcType=VARCHAR}, #{member,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cyx.pojo.Project">
+    insert into project
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="leader != null">
+        leader,
+      </if>
+      <if test="datetime != null">
+        datetime,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="duration != null">
+        duration,
+      </if>
+      <if test="fund != null">
+        fund,
+      </if>
+      <if test="member != null">
+        member,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="leader != null">
+        #{leader,jdbcType=VARCHAR},
+      </if>
+      <if test="datetime != null">
+        #{datetime,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null">
+        #{duration,jdbcType=VARCHAR},
+      </if>
+      <if test="fund != null">
+        #{fund,jdbcType=VARCHAR},
+      </if>
+      <if test="member != null">
+        #{member,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cyx.pojo.Project">
+    update project
+    <set>
+      <if test="name != null and name != ''">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="leader != null and leader !=''">
+        leader = #{leader,jdbcType=VARCHAR},
+      </if>
+      <if test="datetime != null and datetime !=''">
+        datetime = #{datetime,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null and status !=''">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null and duration !=''">
+        duration = #{duration,jdbcType=VARCHAR},
+      </if>
+      <if test="fund != null and fund !=''">
+        fund = #{fund,jdbcType=VARCHAR},
+      </if>
+      <if test="member != null and member !=''">
+        member = #{member,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cyx.pojo.Project">
+    update project
+    set name = #{name,jdbcType=VARCHAR},
+      leader = #{leader,jdbcType=VARCHAR},
+      datetime = #{datetime,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      duration = #{duration,jdbcType=VARCHAR},
+      fund = #{fund,jdbcType=VARCHAR},
+      member = #{member,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

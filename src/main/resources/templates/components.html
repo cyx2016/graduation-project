@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bootstrap毕业设计组件库</title>
+    <!--<link href="../static/css/bootstrap.css" rel="stylesheet">-->
+    <link href="../static/css/bootstrap.css" rel="stylesheet">
+    <!--<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.css" rel="stylesheet">-->
+    <!--文件上传css-->
+    <link rel="stylesheet" href="../static/css/fileinput/fileinput.css">
+    <!--日期控件css-->
+    <link rel="stylesheet" href="../static/css/datetimepicker.css">
+    <!--滑动开关css-->
+    <link rel="stylesheet" href="../static/css/bootstrap-switch.css">
+    <script type="text/javascript" src="../static/js/jquery-1.8.3.min.js" charset="UTF-8"></script>
+    <!--<script src="../static/js/vendor/jquery-slim.min.js"></script>-->
+    <!--<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.js"></script>-->
+    <script src="../static/js/bootstrap.min.js"></script>
+    <!--文件上传语言js和事件js-->
+    <script src="../static/js/fileinput/zh.js"></script>
+    <script src="../static/js/fileinput/fileinput.js"></script>
+    <!--日期控件js-->
+    <script src="../static/js/bootstrap-datetimepicker.js"></script>
+    <script src="../static/js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <!--滑动开关js-->
+    <script src="../static/js/bootstrap-switch.js"></script>
+    <script src="../static/js/router.js"></script>
+    <style>
+        .row{
+            margin-bottom: 20px;
+        }
+        .row .row{
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+        [class*="col-"]{
+            padding-top: 15px;
+            padding-bottom: 15px;
+            background-color: #eeeeee;
+            border: 1px solid #dddddd;
+        }
+    </style>
+
+
+
+</head>
+<body>
+    <div class="container">
+        <h1>标题1</h1>
+        <h4>数据块</h4>
+        <div class="row">
+            <div class="col-sm">
+                One of three columns
+            </div>
+            <div class="col-sm">
+                One of three columns
+                <div class="row">
+                    <div class="col-md-6 offset-md-3">
+                        一半
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm">
+                One of three columns
+            </div>
+        </div>
+        <br/>
+        <h4>表单组件</h4>
+        <input class="form-control" type="text" placeholder="Readonly input here…" value="该表单元素为只读" readonly>
+        <br/><!--选择器-->
+        <select class="form-control form-control-lg">
+            <option>Large select(lg)</option>
+            <option>Default select(无)</option>
+            <option>Small select(sm)</option>
+        </select>
+        <br/>
+        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+        <br/><!--单选按钮-->
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+            <label class="form-check-label" for="exampleRadios1">
+                Default radio
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+            <label class="form-check-label" for="exampleRadios2">
+                Second default radio
+            </label>
+        </div>
+        <div class="form-check disabled">
+            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3" disabled>
+            <label class="form-check-label" for="exampleRadios3">
+                Disabled radio
+            </label>
+        </div>
+        <h4>表单实例</h4>
+        <form>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputEmail4">Email</label>
+                    <input type="email" class="form-control" id="inputEmail4" placeholder="Email">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputPassword4">Password</label>
+                    <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputAddress">Address</label>
+                <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+            </div>
+            <div class="form-group">
+                <label for="inputAddress2">Address 2</label>
+                <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputCity">City</label>
+                    <input type="text" class="form-control" id="inputCity">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="inputState">State</label>
+                    <select id="inputState" class="form-control">
+                        <option selected>Choose...</option>
+                        <option>...</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="inputZip">Zip</label>
+                    <input type="text" class="form-control" id="inputZip">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="gridCheck">
+                    <label class="form-check-label" for="gridCheck">
+                        Check me out
+                    </label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign in</button>
+        </form>
+        <br/><h4>图标测试</h4>
+        <button type="button" class="btn btn-default btn-lg">
+        <span class="glyphicon glyphicon-star"></span> Star
+        </button>
+        <br/><h4>日期组件</h4>
+        <div class="form-group">
+            <label for="dtp_input1" class="col-md-2 control-label">DateTime Picking</label>
+            <div class="input-group date form_datetime col-md-5" data-date="1979-09-16T05:25:07Z" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input1">
+                <input class="form-control" size="16" type="text" value="" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary " type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span></button>
+                    <button class="btn btn-primary " type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></button>
+                </div>
+            </div>
+            <input type="hidden" id="dtp_input1" value="" /><br/>
+        </div>
+        <h4>h5日期组件</h4>
+        <input id="meeting" type="date" value="2014-01-13"/>
+
+        <br/><br/><br/><br/><br/><br/>
+        文本域<br/>
+        <div class="form-group">
+            <label for="testarea">相关人员</label>
+            <textarea rows="3" class="form-control" id="testarea" placeholder="1234 Main St /\r/\n asdas" wrap="hard" readonly>游客1，&#10;游客1，游客1，_@游客1，/\n/游客1，游客1，游客1</textarea>
+        </div>
+        <br/><br/><br/><br/><br/><br/>
+        导航栏<br/>
+        <nav id="navbar-example2" class="navbar navbar-light bg-light">
+            <a class="navbar-brand" href="#">Navbar</a>
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" href="#fat">@fat</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#mdo">@mdo</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#one">one</a>
+                        <a class="dropdown-item" href="#two">two</a>
+                        <div role="separator" class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#three">three</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <br/><br/><br/><br/><br/><br/>
+        文件上传<br/>
+        <form id="form" action="upload/insert" method="post" enctype="multipart/form-data">
+            <div class="row form-group">
+                <label class="col-md-4">图片上传:</label>
+                <div class="col-sm-12">
+                    <input id="input-id" name="file" multiple type="file" data-show-caption="true">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">提交</button>
+        </form>
+        <!--文件上传js-->
+        <script>
+            $(function () {
+                initFileInput("input-id");
+            })
+
+            function initFileInput(ctrlName) {
+                var control = $('#' + ctrlName);
+                control.fileinput({
+                    language: 'zh', //设置语言
+                    uploadUrl: "upload/insert", //上传的地址
+                    allowedFileExtensions: ['jpg', 'gif', 'png'],//接收的文件后缀
+                    //uploadExtraData:{"id": 1, "fileName":'123.mp3'},
+                    uploadAsync: true, //默认异步上传
+                    showUpload: true, //是否显示上传按钮
+                    showRemove : true, //显示移除按钮
+                    showPreview : true, //是否显示预览
+                    showCaption: false,//是否显示标题
+                    browseClass: "btn btn-primary", //按钮样式
+                    //dropZoneEnabled: true,//是否显示拖拽区域
+                    //minImageWidth: 50, //图片的最小宽度
+                    //minImageHeight: 50,//图片的最小高度
+                    //maxImageWidth: 1000,//图片的最大宽度
+                    //maxImageHeight: 1000,//图片的最大高度
+                    //maxFileSize: 0,//单位为kb，如果为0表示不限制文件大小
+                    //minFileCount: 0,
+                    //maxFileCount: 10, //表示允许同时上传的最大文件个数
+                    enctype: 'multipart/form-data',
+                    validateInitialCount:true,
+                    previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+                    msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+
+                }).on('filepreupload', function(event, data, previewId, index) {     //上传中
+                    var form = data.form, files = data.files, extra = data.extra,
+                        response = data.response, reader = data.reader;
+                    console.log('文件正在上传');
+                }).on("fileuploaded", function (event, data, previewId, index) {    //一个文件上传成功
+                    console.log('文件上传成功！'+data.id);
+
+                }).on('fileerror', function(event, data, msg) {  //一个文件上传失败
+                    console.log('文件上传失败！'+data.id);
+
+
+                })
+            };
+        </script>
+        <br/><br/><br/><br/><br/><br/>
+        <script type="text/javascript">
+            //日期控件js
+            $('.form_datetime').datetimepicker({
+                //language:  'fr',
+                weekStart: 1,
+                todayBtn:  1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                forceParse: 0,
+                showMeridian: 1
+            });
+        </script>
+        <br/><br/><br/><br/><br/><br/>
+        <!--日期控件-->
+        <form>
+            <label for="dtp_input2" class="col-md-2 control-label">Date Picking</label>
+            <div class="input-group date form_date col-md-5" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                <input class="form-control" size="16" type="text" value="" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary " type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span></button>
+                    <button class="btn btn-primary " type="button"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></button>
+                </div>
+            </div>
+            <input type="hidden" id="dtp_input2" value="" /><br/>
+        </form>
+        <script>
+            $('.form_date').datetimepicker({
+                language:  'fr',
+                weekStart: 1,
+                todayBtn:  1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                minView: 2,
+                forceParse: 0
+            });
+        </script>
+        <br/><br/><br/><br/><br/><br/>
+        <h4>滑动开关</h4>
+        <div class="col-md-12">
+        <div class="bootstrap-switch">
+            <input name="status" type="checkbox" data-size="small" data-on-Text="启用" white-space="nowrap">
+        </div>
+        </div>
+        <script>
+            $('[name="status"]').bootstrapSwitch({
+                /*onText:"启用222",*/
+                offText:"off",
+                onColor:"success",
+                offColor:"info",
+                /*size:"small",*/
+                onSwitchChange:function(event,state){
+                    if(state==true){
+                        $(this).val("1");
+                    }else{
+                        $(this).val("2");
+                    }
+                }
+            })
+        </script>
+        <br/><br/><br/><br/><br/><br/>
+        <input type="checkbox" name="my-checkbox" checked>
+        <script>
+            /*$("[name='my-checkbox']").bootstrapSwitch();*/
+            $('[name="my-checkbox"]').bootstrapSwitch({
+                "onColor" : "success",
+                "offColor" : "success",
+                "onText" : "男",
+                "offText" : "女"
+            });
+        </script>
+        <br/><br/><br/><br/><br/><br/>
+    </div>
+</body>
+</html>
